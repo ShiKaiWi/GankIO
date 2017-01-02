@@ -1,7 +1,6 @@
 package com.example.xkwei.gankio.utils;
 
 import android.net.Uri;
-import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.example.xkwei.gankio.models.Article;
@@ -16,8 +15,15 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+
+import io.realm.Realm;
+import io.realm.RealmList;
 
 /**
  * Created by xkwei on 01/01/2017.
@@ -26,10 +32,36 @@ import java.util.List;
 public class GankIOAPI {
 
     private static final String TAG = "GankIOAPI";
-    public static List<Article> getData(String type){
+    /***
+            "_id": "586528c7421aa94dbe2ccdae",
+            "createdAt": "2016-12-29T23:16:23.876Z",
+            "desc": "H5\u5524\u8d77\u539f\u751f\u5e94\u7528",
+            "publishedAt": "2016-12-30T16:16:11.125Z",
+            "source": "web",
+            "type": "Android",
+            "url": "http://ihongqiqu.com/2015/12/03/html-call-native-app/",
+            "used": true,
+            "who": "Jin"
+    ***/
+    public static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.S'Z'", Locale.CHINA);
+    public static Date parseDate(String dateString){
+        if(null==dateString){
+            Log.i(TAG,"missing the date");
+            return null;
+        }
+        Date date = null;
+        try{
+            date = DATE_FORMATTER.parse(dateString);
+        }catch(ParseException pe){
+            Log.i(TAG,"cannot parse the date string "+dateString);
+        }
+        return date;
+    }
+
+    public static RealmList<Article> getData(String type){
         Uri uri = null;
         String url = null;
-        List<Article> articles = null;
+        RealmList<Article> articles = null;
         if(type.equals(Constants.ANDROID)){
             uri = new Uri.Builder().scheme("http")
                     .authority(Constants.BASE_URL)
@@ -45,8 +77,8 @@ public class GankIOAPI {
         return articles;
     }
 
-    private static List<Article> parseJSONObject(JSONObject job){
-        List<Article> articles = new ArrayList<>();
+    private static RealmList<Article> parseJSONObject(JSONObject job){
+        RealmList<Article> articles = new RealmList<>();
 
         try {
             JSONArray results = job.getJSONArray(Constants.JSON_RESULTS);
@@ -59,13 +91,15 @@ public class GankIOAPI {
                 article.setDescription(result.getString(Constants.JSON_RESULT_DESCRITION));
                 article.setUrl(result.getString(Constants.JSON_RESULT_URL));
                 article.setType(result.getString(Constants.JSON_RESULT_TYPE));
+                article.setPublishDate(result.getString(Constants.JSON_REUSLT_PUBLISH_DATE));
+                article.setDate(parseDate(article.getPublishDate()));
+                article.setTitle();
                 articles.add(article);
                 Log.i(TAG,"got the Article "+article.getUrl());
             }
         }catch(JSONException je){
             je.printStackTrace();
         }
-
         return articles;
     }
 
