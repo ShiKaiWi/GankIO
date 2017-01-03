@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
         Fragment fg = fm.findFragmentById(R.id.main_fragment_container);
         if(fg==null){
             fg = createFragment();
+            fm.beginTransaction().add(R.id.main_fragment_container,fg).commit();
         }
-        fm.beginTransaction().add(R.id.main_fragment_container,fg).commit();
     }
 }

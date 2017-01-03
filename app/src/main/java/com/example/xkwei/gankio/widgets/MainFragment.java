@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
@@ -15,14 +16,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.xkwei.gankio.ArticlePageActivity;
 import com.example.xkwei.gankio.R;
 import com.example.xkwei.gankio.models.Article;
 import com.example.xkwei.gankio.services.GankIODataService;
 import com.example.xkwei.gankio.utils.Constants;
+import com.example.xkwei.gankio.utils.DateUtils;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
-import io.realm.RealmList;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.Sort;
@@ -45,6 +47,7 @@ public class MainFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
         mRealm = Realm.getDefaultInstance();
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
         mUpdateReceiver = new UpdateReceiver();
@@ -61,9 +64,11 @@ public class MainFragment extends Fragment {
         return v;
     }
 
-    private void updateRecyclerView(){
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mRecyclerView.setAdapter(new ArticleRecyclerViewAdapter(getActivity(),mRealm.where(Article.class).findAllSorted("mDate", Sort.DESCENDING)));
+    private void updateRecyclerView() {
+        if (isAdded()) {
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            mRecyclerView.setAdapter(new ArticleRecyclerViewAdapter(getActivity(), mRealm.where(Article.class).findAllSorted("mDate", Sort.DESCENDING)));
+        }
     }
     private class UpdateReceiver extends BroadcastReceiver{
         @Override
@@ -75,23 +80,29 @@ public class MainFragment extends Fragment {
         }
     }
 
-    private class ArticleHolder extends RecyclerView.ViewHolder{
-
-        TextView mTitle;
-        TextView mDate;
-        TextView mDescription;
+    private class ArticleHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+        TextView mAuthor,mDate,mDescription;
+        Article mArticle;
 
         public ArticleHolder(View v){
             super(v);
-            mTitle = (TextView) v.findViewById(R.id.article_fragment_main_recyclerview_item_title);
+            mAuthor = (TextView) v.findViewById(R.id.article_fragment_main_recyclerview_item_author);
             mDate = (TextView) v.findViewById(R.id.article_fragment_main_recyclerview_item_date);
             mDescription = (TextView) v.findViewById(R.id.article_fragment_main_recyclerview_item_description);
+            v.setOnClickListener(this);
         }
 
-        public void bindArticleItem(String title,String date,String description){
-            mTitle.setText(title);
-            mDate.setText(date);
-            mDescription.setText(description);
+        public void bindArticleItem(Article article){
+            mArticle = article;
+            mAuthor.setText(article.getAuthor());
+            mDate.setText(DateUtils.dateToString(article.getDate()));
+            mDescription.setText(article.getDescription());
+        }
+
+        @Override
+        public void onClick(View v){
+            Intent i = ArticlePageActivity.newIntent(getActivity(), Uri.parse(mArticle.getUrl()));
+            startActivity(i);
         }
     }
 
@@ -105,7 +116,7 @@ public class MainFragment extends Fragment {
         @Override
         public void onBindViewHolder(ArticleHolder ahd,int position){
             Article article = getData().get(position);
-            ahd.bindArticleItem(article.getTitle(),article.getDate().toString(),article.getDescription());
+            ahd.bindArticleItem(article);
         }
 
         public ArticleRecyclerViewAdapter(Context context, OrderedRealmCollection<Article> orc){
