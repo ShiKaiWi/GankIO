@@ -28,8 +28,12 @@ public class GankIODataService extends IntentService {
     @Override
     public void onCreate(){
         super.onCreate();
-
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this.getApplicationContext());
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
     }
 
 //    @Override
@@ -45,12 +49,12 @@ public class GankIODataService extends IntentService {
         }
         mRealm = Realm.getDefaultInstance();
         String type = intent.getStringExtra(Constants.ARTICLE_TYPE);
-        RealmList<Article> articles = GankIOAPI.getData(type);
+        int pageNum = intent.getIntExtra(Constants.PAGE_NUM,1);
+        RealmList<Article> articles = GankIOAPI.getData(type,pageNum);
         mRealm.beginTransaction();
         mRealm.copyToRealmOrUpdate(articles);
         mRealm.commitTransaction();
         Log.i(TAG,"have finished the request for "+type+" articls");
-
         sendResult();
     }
 
@@ -59,9 +63,10 @@ public class GankIODataService extends IntentService {
         mLocalBroadcastManager.sendBroadcast(i);
     }
 
-    public static Intent newIntentWithType(Context context,String type){
+    public static Intent newIntentWithType(Context context,String type,int pageNumber){
         Intent i = new Intent(context,GankIODataService.class);
         i.putExtra(Constants.ARTICLE_TYPE,type);
+        i.putExtra(Constants.PAGE_NUM,pageNumber);
         return i;
     }
     public GankIODataService(){

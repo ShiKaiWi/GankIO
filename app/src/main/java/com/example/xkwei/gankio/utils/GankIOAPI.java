@@ -58,7 +58,7 @@ public class GankIOAPI {
         return date;
     }
 
-    public static RealmList<Article> getData(String type){
+    public static RealmList<Article> getData(String type,int pageNum){
         Uri uri = null;
         String url = null;
         RealmList<Article> articles = null;
@@ -69,7 +69,7 @@ public class GankIOAPI {
                     .appendPath(Constants.GANK_DATA)
                     .appendPath(Constants.ANDROID)
                     .appendPath("10")
-                    .appendPath("1")
+                    .appendPath(Integer.toString(pageNum))
                     .build();
             JSONObject job = getUriJSONObject(uri);
             articles = parseJSONObject(job);

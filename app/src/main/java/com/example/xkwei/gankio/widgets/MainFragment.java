@@ -1,5 +1,6 @@
 package com.example.xkwei.gankio.widgets;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -37,12 +38,19 @@ import io.realm.Sort;
  */
 
 public class MainFragment extends Fragment {
+    private static final int REFRESHING= 0 ;
+    private static final int LOADING_MORE= 1;
 
     private static final String TAG = "MainFragment";
     private UpdateReceiver mUpdateReceiver;
     private LocalBroadcastManager mLocalBroadcastManager;
     private Realm mRealm;
     private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private boolean mIsRefreshing;
+    private boolean mIsLoadingMore;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private int mPageNumber;
     public static Fragment getInstance(){
         return new MainFragment();
     }
@@ -51,27 +59,90 @@ public class MainFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        mIsLoadingMore = mIsRefreshing = false;
         mRealm = Realm.getDefaultInstance();
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
         mUpdateReceiver = new UpdateReceiver();
         mLocalBroadcastManager.registerReceiver(mUpdateReceiver,new IntentFilter(GankIODataService.ACTION_UPDATE_DATA));
-        Intent i = GankIODataService.newIntentWithType(getActivity(), Constants.ANDROID);
-        getActivity().startService(i);
+        mPageNumber = 1;
+        fetchingData(REFRESHING);
     }
 
     @Override
     public View onCreateView(LayoutInflater lif, ViewGroup container, Bundle savedInstanceState){
         View v = lif.inflate(R.layout.fragment_main,container,false);
         mRecyclerView = (RecyclerView)v.findViewById(R.id.fragment_main_recycler_view);
-        updateRecyclerView();
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if(!isFetching()){
+                    if(dy<0 && getFirstVisiblePosition()==0){
+                        fetchingData(REFRESHING);
+                    }
+                    else if(dy>0 && getLastVisiblePosition()==mAdapter.getItemCount()-1)
+                    {
+                        fetchingData(LOADING_MORE);
+                    }
+                }
+            }
+        });
+
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mAdapter = new ArticleRecyclerViewAdapter(getActivity(), mRealm.where(Article.class).findAllSorted("mDate", Sort.DESCENDING));
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setAdapter(mAdapter);
         return v;
     }
 
-    private void updateRecyclerView() {
-        if (isAdded()) {
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            mRecyclerView.setAdapter(new ArticleRecyclerViewAdapter(getActivity(), mRealm.where(Article.class).findAllSorted("mDate", Sort.DESCENDING)));
+    private void fetchingData(int requestCode){
+        if(isFetching())return;
+        Intent i = null;
+        if(requestCode==REFRESHING){
+            mIsRefreshing = true;
+            i = GankIODataService.newIntentWithType(getActivity(), Constants.ANDROID,1);
         }
+        else if(requestCode==LOADING_MORE){
+            mIsLoadingMore = true;
+            i = GankIODataService.newIntentWithType(getActivity(), Constants.ANDROID,++mPageNumber);
+        }
+        if(null!=i)
+            getActivity().startService(i);
+    }
+
+    private int getFirstVisiblePosition(){
+        LinearLayoutManager llm = (LinearLayoutManager) mLayoutManager;
+        return llm.findFirstVisibleItemPosition();
+    }
+    private int getLastVisiblePosition(){
+        LinearLayoutManager llm = (LinearLayoutManager) mLayoutManager;
+        return llm.findLastVisibleItemPosition();
+    }
+    @Override
+    public void onPause(){
+        super.onPause();
+        mLocalBroadcastManager.unregisterReceiver(mUpdateReceiver);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        mLocalBroadcastManager.registerReceiver(mUpdateReceiver,new IntentFilter(GankIODataService.ACTION_UPDATE_DATA));
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        mRealm.close();
+    }
+
+
+    private boolean isFetching(){
+        return mIsRefreshing||mIsLoadingMore;
+    }
+    private void setIsFetching(boolean isFetcing){
+        mIsLoadingMore = isFetcing;
+        mIsRefreshing = isFetcing;
     }
     private class UpdateReceiver extends BroadcastReceiver{
         @Override
@@ -79,7 +150,8 @@ public class MainFragment extends Fragment {
             Log.i(TAG,"got the broadcast");
             RealmResults<Article> realmResults = mRealm.where(Article.class).findAll();
             Log.i(TAG,"got "+realmResults.size()+" articles");
-
+            updateRecyclerView();
+            setIsFetching(false);
         }
     }
 
@@ -123,9 +195,12 @@ public class MainFragment extends Fragment {
         }
 
         public ArticleRecyclerViewAdapter(Context context, OrderedRealmCollection<Article> orc){
-            super(context,orc,false);
+            super(context,orc,true);
         }
     }
 
+    private void updateRecyclerView() {
+        ((ArticleRecyclerViewAdapter)mAdapter).updateData(mRealm.where(Article.class).findAllSorted("mDate", Sort.DESCENDING));
+    }
 
 }

@@ -19,4 +19,5 @@ public final class Constants {
     public static final String JSON_RESULT_TYPE = "type";
     public static final String JSON_RESULT_URL = "url";
     public static final String JSON_RESULT_AUTHOR ="who";
+    public static final String PAGE_NUM ="Page_Number";
 }
