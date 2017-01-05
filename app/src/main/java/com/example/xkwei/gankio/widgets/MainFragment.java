@@ -51,6 +51,8 @@ public class MainFragment extends Fragment {
     private boolean mIsLoadingMore;
     private RecyclerView.LayoutManager mLayoutManager;
     private int mPageNumber;
+
+    public static final String CATEGORY="MianFragment_Category_Index";
     public static Fragment getInstance(){
         return new MainFragment();
     }

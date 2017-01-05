@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">GankIO</string>
+    <string name="drawer_layout_name">Category</string>
+    <string name="category_android">Android</string>
+    <string name="category_ios">iOS</string>
+    <string name="category_web_front">Web Front</string>
+    <string name="category_app">App</string>
+    <string name="drawer_open">Drawer is opened</string>
+    <string name="drawer_close">Drawer is closed</string>
 </resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GankIO</string>
+    <string name="drawer_layout_name">类别</string>
+    <string name="category_android">Android</string>
+    <string name="category_ios">iOS</string>
+    <string name="category_web_front">前端</string>
+    <string name="category_app">App</string>
+</resources>
