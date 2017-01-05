@@ -30,32 +30,32 @@ public class MainActivity extends AppCompatActivity {
             fg = createFragment();
             fm.beginTransaction().add(R.id.main_fragment_container,fg).commit();
         }
-//        mDetector = new GestureDetectorCompat(this,new GestureDetector.SimpleOnGestureListener(){
-//            @Override
-//            public boolean onDown(MotionEvent me){
-//                Log.i(DEBUG_TAG,"onDown");
-//                return true;
-//            }
-//            @Override
-//            public boolean onFling(MotionEvent me1, MotionEvent me2, float velocityX,float velocityY){
-//                Log.i(DEBUG_TAG,"on Fling originY: "+me1.getY()+"|endY: "+me2.getY());
-//                return true;
-//            }
-//        });
+        mDetector = new GestureDetectorCompat(this,new GestureDetector.SimpleOnGestureListener(){
+            @Override
+            public boolean onDown(MotionEvent me){
+                Log.i(DEBUG_TAG,"onDown");
+                return false;
+            }
+            @Override
+            public boolean onFling(MotionEvent me1, MotionEvent me2, float velocityX,float velocityY){
+                Log.i(DEBUG_TAG,"on Fling at speedX: " +velocityX +"|speedY: "+velocityY);
+                return false;
+            }
+        });
     }
 
-//    @Override
-//    public boolean dispatchTouchEvent(MotionEvent me){
-//
-//        Log.i(DEBUG_TAG,"on Touch");
-//        boolean result = mDetector.onTouchEvent(me);
-//
-//        if(result){
-//            super.dispatchTouchEvent(me);
-//        }
-//        else{
-//            Log.i(DEBUG_TAG,"not call super dispatchTouchEvent");
-//        }
-//        return true;
-//    }
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent me){
+
+        Log.i(DEBUG_TAG,"on Touch");
+        boolean result = mDetector.onTouchEvent(me);
+
+        if(!result){
+            super.dispatchTouchEvent(me);
+        }
+        else{
+            Log.i(DEBUG_TAG,"not call super dispatchTouchEvent");
+        }
+        return true;
+    }
 }
