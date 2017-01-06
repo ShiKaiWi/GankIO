@@ -51,10 +51,21 @@ public class MainFragment extends Fragment {
     private boolean mIsLoadingMore;
     private RecyclerView.LayoutManager mLayoutManager;
     private int mPageNumber;
+    private int mCategoryIndex;
 
     public static final String CATEGORY="MianFragment_Category_Index";
+
+
+
+    public static Fragment getInstance(int categoryIndex){
+        Bundle args = new Bundle();
+        args.putInt(CATEGORY,categoryIndex);
+        Fragment fg = new MainFragment();
+        fg.setArguments(args);
+        return fg;
+    }
     public static Fragment getInstance(){
-        return new MainFragment();
+        return getInstance(0);
     }
 
     @Override
@@ -67,6 +78,9 @@ public class MainFragment extends Fragment {
         mUpdateReceiver = new UpdateReceiver();
         mLocalBroadcastManager.registerReceiver(mUpdateReceiver,new IntentFilter(GankIODataService.ACTION_UPDATE_DATA));
         mPageNumber = 1;
+
+        Bundle args = getArguments();
+        mCategoryIndex = args.getInt(CATEGORY);
         fetchingData(REFRESHING);
     }
 
@@ -102,11 +116,11 @@ public class MainFragment extends Fragment {
         Intent i = null;
         if(requestCode==REFRESHING){
             mIsRefreshing = true;
-            i = GankIODataService.newIntentWithType(getActivity(), Constants.ANDROID,1);
+            i = GankIODataService.newIntentWithTypeAndPage(getActivity(), Constants.CATEGORY[mCategoryIndex],1);
         }
         else if(requestCode==LOADING_MORE){
             mIsLoadingMore = true;
-            i = GankIODataService.newIntentWithType(getActivity(), Constants.ANDROID,++mPageNumber);
+            i = GankIODataService.newIntentWithTypeAndPage(getActivity(), Constants.CATEGORY[mCategoryIndex],++mPageNumber);
         }
         if(null!=i)
             getActivity().startService(i);
@@ -202,7 +216,7 @@ public class MainFragment extends Fragment {
     }
 
     private void updateRecyclerView() {
-        ((ArticleRecyclerViewAdapter)mAdapter).updateData(mRealm.where(Article.class).findAllSorted("mDate", Sort.DESCENDING));
+        ((ArticleRecyclerViewAdapter)mAdapter).updateData(mRealm.where(Article.class).equalTo("mType",Constants.CATEGORY[mCategoryIndex]).findAllSorted("mDate", Sort.DESCENDING));
     }
 
 }

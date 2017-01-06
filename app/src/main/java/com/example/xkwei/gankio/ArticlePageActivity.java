@@ -34,12 +34,12 @@ public class ArticlePageActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_article_view);
         FragmentManager fm = getSupportFragmentManager();
-        Fragment fg = fm.findFragmentById(R.id.main_fragment_container);
+        Fragment fg = fm.findFragmentById(R.id.article_view_fragment_container);
         if(fg==null){
             fg = ArticlePageFragment.newInstance(getIntent().getData());
-            fm.beginTransaction().add(R.id.main_fragment_container,fg).commit();
+            fm.beginTransaction().add(R.id.article_view_fragment_container,fg).commit();
         }
         mDetector = new GestureDetectorCompat(this,new GestureDetector.SimpleOnGestureListener(){
             @Override
@@ -77,7 +77,7 @@ public class ArticlePageActivity extends AppCompatActivity {
     @Override
     public void onBackPressed(){
         FragmentManager fm = getSupportFragmentManager();
-        ArticlePageFragment fragment = (ArticlePageFragment) fm.findFragmentById(R.id.main_fragment_container);
+        ArticlePageFragment fragment = (ArticlePageFragment) fm.findFragmentById(R.id.article_view_fragment_container);
         WebView wv = fragment.getWebView();
         if(wv.canGoBack()){
             wv.goBack();

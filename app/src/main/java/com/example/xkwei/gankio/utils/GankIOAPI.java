@@ -62,12 +62,14 @@ public class GankIOAPI {
         Uri uri = null;
         String url = null;
         RealmList<Article> articles = null;
-        if(type.equals(Constants.ANDROID)){
+        for(String definedTypes:Constants.CATEGORY){
+            if(type.equals(definedTypes))
+                continue;
             uri = new Uri.Builder().scheme("http")
                     .authority(Constants.BASE_URL)
                     .appendPath(Constants.GANK_API)
                     .appendPath(Constants.GANK_DATA)
-                    .appendPath(Constants.ANDROID)
+                    .appendPath(type)
                     .appendPath("10")
                     .appendPath(Integer.toString(pageNum))
                     .build();

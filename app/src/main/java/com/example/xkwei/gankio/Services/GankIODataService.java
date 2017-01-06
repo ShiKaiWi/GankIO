@@ -54,7 +54,7 @@ public class GankIODataService extends IntentService {
         mRealm.beginTransaction();
         mRealm.copyToRealmOrUpdate(articles);
         mRealm.commitTransaction();
-        Log.i(TAG,"have finished the request for "+type+" articls");
+        Log.i(TAG,"have finished the request for "+type+" articles");
         sendResult();
     }
 
@@ -63,7 +63,7 @@ public class GankIODataService extends IntentService {
         mLocalBroadcastManager.sendBroadcast(i);
     }
 
-    public static Intent newIntentWithType(Context context,String type,int pageNumber){
+    public static Intent newIntentWithTypeAndPage(Context context,String type,int pageNumber){
         Intent i = new Intent(context,GankIODataService.class);
         i.putExtra(Constants.ARTICLE_TYPE,type);
         i.putExtra(Constants.PAGE_NUM,pageNumber);

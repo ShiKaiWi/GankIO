@@ -5,6 +5,7 @@
     android:id="@+id/main_activity_drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:elevation="16dp"
     tools:context="com.example.xkwei.gankio.MainActivity">
 
     <FrameLayout
@@ -14,7 +15,7 @@
     </FrameLayout>
 
     <ListView
-        android:layout_width="wrap_content"
+        android:layout_width="160dp"
         android:layout_height="match_parent"
         android:id="@+id/main_activity_drawerLayout_listView"
         android:layout_gravity="start"
