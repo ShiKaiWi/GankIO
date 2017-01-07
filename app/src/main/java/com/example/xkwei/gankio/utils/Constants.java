@@ -17,6 +17,7 @@ public final class Constants {
     public static final String WEB_FRONT = "前端";
     public static final String APP = "App";
     public static final String[] CATEGORY = {ANDROID,IOS,WEB_FRONT,APP};
+    public static final int[] CATEGORY_ID = {R.id.navigation_menu_android,R.id.navigation_menu_ios,R.id.navigation_menu_web_front,R.id.navigation_menu_app};
     public static final String JSON_RESULTS = "results";
     public static final String JSON_RESULT_ID = "_id";
     public static final String JSON_RESULT_CREATE_DATE = "createdAt";

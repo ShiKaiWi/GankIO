@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -24,6 +25,7 @@ public class ArticlePageActivity extends AppCompatActivity {
 
     private GestureDetectorCompat mDetector;
     private static final String TAG="ArticlePageActivity";
+    private Toolbar mToolbar;
 
     public static Intent newIntent(Context context,Uri uri){
         Intent i = new Intent(context,ArticlePageActivity.class);
@@ -57,6 +59,9 @@ public class ArticlePageActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        mToolbar = (Toolbar)findViewById(R.id.activity_article_view_toolbar);
+        setSupportActionBar(mToolbar);
     }
 
     @Override
