@@ -1,6 +1,7 @@
 package com.example.xkwei.gankio;
 
 import android.content.res.Configuration;
+import android.os.Build;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -40,6 +41,10 @@ public class MainActivity extends AppCompatActivity {
         return createFragment(0);
     }
 
+    public Toolbar getToolbar() {
+        return mToolbar;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
                         FragmentManager fm = getSupportFragmentManager();
                         Fragment fg = createFragment(i);
                         fm.beginTransaction().replace(R.id.main_fragment_container, fg).commitNow();
+                        mToolbar.setTitle(Constants.CATEGORY[i]);
                         lastCategoryIndex = i;
                     }
                 }
@@ -99,6 +105,10 @@ public class MainActivity extends AppCompatActivity {
 
         mToolbar = (Toolbar) findViewById(R.id.main_activity_toolbar);
         mToolbar.setTitle(Constants.ANDROID);
+        if(Build.VERSION.SDK_INT>22)
+            mToolbar.setTitleTextColor(getResources().getColor(android.R.color.white,getTheme()));
+        else
+            mToolbar.setTitleTextColor(getResources().getColor(android.R.color.white));
         setSupportActionBar(mToolbar);
         mActionBarDrawerToggle = new ActionBarDrawerToggle(this,mDrawerLayout,mToolbar,R.string.drawer_open,R.string.drawer_close){
             @Override
@@ -112,8 +122,16 @@ public class MainActivity extends AppCompatActivity {
                 getSupportActionBar().setTitle(R.string.app_name);
             }
         };
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
+
+//        mToolbar.setVisibility(View.GONE);
+        //mActionBarDrawerToggle.setDrawerIndicatorEnabled(false);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setHomeButtonEnabled(true);
+        //mToolbar.setNavigationIcon(R.drawable.ic_drawer);
+//        mToolbar.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+//        getWindow().getDecorView().setSystemUiVisibility(
+//                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+//        );
 //        mActionBarDrawerToggle.setDrawerIndicatorEnabled(true);
 //        mActionBarDrawerToggle.setHomeAsUpIndicator(R.drawable.ic_drawer);
     }

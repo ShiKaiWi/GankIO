@@ -12,15 +12,18 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.TextView;
 
 import com.example.xkwei.gankio.ArticlePageActivity;
+import com.example.xkwei.gankio.MainActivity;
 import com.example.xkwei.gankio.R;
 import com.example.xkwei.gankio.models.Article;
 import com.example.xkwei.gankio.services.GankIODataService;
@@ -32,7 +35,7 @@ import io.realm.Realm;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.Sort;
-
+import java.lang.Math;
 /**
  * Created by xkwei on 01/01/2017.
  */
@@ -52,7 +55,7 @@ public class MainFragment extends Fragment {
     private RecyclerView.LayoutManager mLayoutManager;
     private int mPageNumber;
     private int mCategoryIndex;
-
+    private Toolbar mToolbar;
     public static final String CATEGORY="MianFragment_Category_Index";
 
 
@@ -82,6 +85,7 @@ public class MainFragment extends Fragment {
         Bundle args = getArguments();
         mCategoryIndex = args.getInt(CATEGORY);
         fetchingData(REFRESHING);
+        mToolbar = ((MainActivity)getActivity()).getToolbar();
     }
 
     @Override
@@ -89,9 +93,24 @@ public class MainFragment extends Fragment {
         View v = lif.inflate(R.layout.fragment_main,container,false);
         mRecyclerView = (RecyclerView)v.findViewById(R.id.fragment_main_recycler_view);
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            private final int THRESH_HOLD = 12;
+            private boolean isToolBarVisible=true;
+            private int deltaY=0;
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
+
+                if(isToolBarVisible && dy>0 || !isToolBarVisible && dy<0){
+                    deltaY+=dy;
+                }
+//                Log.i(TAG,"|delta|= " + Math.abs(deltaY));
+                if(Math.abs(deltaY)>THRESH_HOLD) {
+                    if(getFirstVisiblePosition()!=0) {
+                        hideOrShowToolbar(!isToolBarVisible);
+                        isToolBarVisible = !isToolBarVisible;
+                    }
+                    deltaY = 0;
+                }
                 if(!isFetching()){
                     if(dy<0 && getFirstVisiblePosition()==0){
                         fetchingData(REFRESHING);
@@ -219,4 +238,8 @@ public class MainFragment extends Fragment {
         ((ArticleRecyclerViewAdapter)mAdapter).updateData(mRealm.where(Article.class).equalTo("mType",Constants.CATEGORY[mCategoryIndex]).findAllSorted("mDate", Sort.DESCENDING));
     }
 
+    private void hideOrShowToolbar(boolean shouldBeVisible){
+        int deltaY = shouldBeVisible?0:-mToolbar.getHeight();
+        mToolbar.animate().translationY(deltaY).setInterpolator(new AccelerateInterpolator(2));
+    }
 }
