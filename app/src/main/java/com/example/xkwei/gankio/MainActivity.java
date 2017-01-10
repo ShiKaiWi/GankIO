@@ -1,5 +1,6 @@
 package com.example.xkwei.gankio;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.support.design.widget.NavigationView;
@@ -10,13 +11,17 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.example.xkwei.gankio.services.GankIODataService;
 import com.example.xkwei.gankio.utils.Constants;
 import com.example.xkwei.gankio.widgets.MainFragment;
 
@@ -33,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private int lastCategoryIndex;
     private NavigationView mNavigationView;
     private Toolbar mToolbar;
+    private SearchView mSearchView;
     private Fragment createFragment(int CategoryIndex){
 
         return MainFragment.getInstance(CategoryIndex);
@@ -43,6 +49,10 @@ public class MainActivity extends AppCompatActivity {
 
     public Toolbar getToolbar() {
         return mToolbar;
+    }
+
+    public ActionBarDrawerToggle getActionBarDrawerToggle() {
+        return mActionBarDrawerToggle;
     }
 
     @Override
@@ -78,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+
+
 
 
 /***
@@ -136,6 +148,25 @@ public class MainActivity extends AppCompatActivity {
 //        mActionBarDrawerToggle.setHomeAsUpIndicator(R.drawable.ic_drawer);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        MenuInflater mif = getMenuInflater();
+        mif.inflate(R.menu.activity_main_menu,menu);
+        mSearchView = (SearchView) menu.findItem(R.id.menu_item_search).getActionView();
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Intent i = GankIODataService.newIntentForSearch(MainActivity.this,query);
+                startService(i);
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return true;
+            }
+        });
+        return true;
+    }
     @Override
     public void onConfigurationChanged(Configuration newConfig){
         super.onConfigurationChanged(newConfig);

@@ -6,4 +6,6 @@
     <string name="category_ios">iOS</string>
     <string name="category_web_front">前端</string>
     <string name="category_app">App</string>
+    <string name="search">搜索</string>
+    <string name="clear_search_history">清除搜索记录</string>
 </resources>

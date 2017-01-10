@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
+import android.test.ActivityUnitTestCase;
 import android.util.Log;
 
 import com.example.xkwei.gankio.models.Article;
@@ -22,6 +23,7 @@ import io.realm.RealmList;
 public class GankIODataService extends IntentService {
     private static final String TAG="GankIODataService";
     public static final String ACTION_UPDATE_DATA="GankIOService_Update_Data";
+    public static final String ACTION_QUERY ="GankIOService_Query";
     private LocalBroadcastManager mLocalBroadcastManager;
     private Realm mRealm;
 
@@ -48,24 +50,48 @@ public class GankIODataService extends IntentService {
             return;
         }
         mRealm = Realm.getDefaultInstance();
-        String type = intent.getStringExtra(Constants.ARTICLE_TYPE);
+        RealmList<Article> articles;
         int pageNum = intent.getIntExtra(Constants.PAGE_NUM,1);
-        RealmList<Article> articles = GankIOAPI.getData(type,pageNum);
-        mRealm.beginTransaction();
-        mRealm.copyToRealmOrUpdate(articles);
-        mRealm.commitTransaction();
-        Log.i(TAG,"have finished the request for "+type+" articles");
-        sendResult();
+        String type = intent.getStringExtra(Constants.ARTICLE_TYPE);
+        if(null!=type) {
+            articles = GankIOAPI.getData(type, pageNum);
+            mRealm.beginTransaction();
+            mRealm.copyToRealmOrUpdate(articles);
+            mRealm.commitTransaction();
+            Log.i(TAG, "have finished the request for " + type + " articles");
+            sendResult(ACTION_UPDATE_DATA);
+            return;
+        }
+        String query = intent.getStringExtra(Constants.QUERY);
+        if(null!=query){
+            articles = GankIOAPI.getQueryResult(query,pageNum);
+            mRealm.beginTransaction();
+            mRealm.copyToRealmOrUpdate(articles);
+            mRealm.commitTransaction();
+            Log.i(TAG,"have finished the query request");
+            sendResult(ACTION_QUERY);
+            return;
+        }
     }
 
-    private void sendResult(){
-        Intent i = new Intent(ACTION_UPDATE_DATA);
+    private void sendResult(String resultType){
+        Intent i = new Intent(resultType);
         mLocalBroadcastManager.sendBroadcast(i);
     }
 
     public static Intent newIntentWithTypeAndPage(Context context,String type,int pageNumber){
         Intent i = new Intent(context,GankIODataService.class);
         i.putExtra(Constants.ARTICLE_TYPE,type);
+        i.putExtra(Constants.PAGE_NUM,pageNumber);
+        return i;
+    }
+    public static Intent newIntentForSearch(Context context,String query){
+        return newIntentForSearchWithPage(context,query,1);
+    }
+
+    public static Intent newIntentForSearchWithPage(Context context,String query,int pageNumber){
+        Intent i = new Intent(context,GankIODataService.class);
+        i.putExtra(Constants.QUERY,query);
         i.putExtra(Constants.PAGE_NUM,pageNumber);
         return i;
     }

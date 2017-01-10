@@ -7,15 +7,23 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GestureDetectorCompat;
+import android.support.v4.view.MenuCompat;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,6 +64,8 @@ public class MainFragment extends Fragment {
     private int mPageNumber;
     private int mCategoryIndex;
     private Toolbar mToolbar;
+    private SearchView mSearchView;
+
     public static final String CATEGORY="MianFragment_Category_Index";
 
 
@@ -75,6 +85,7 @@ public class MainFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+//        setHasOptionsMenu(true);
         mIsLoadingMore = mIsRefreshing = false;
         mRealm = Realm.getDefaultInstance();
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
@@ -130,6 +141,28 @@ public class MainFragment extends Fragment {
         return v;
     }
 
+//    @Override
+//    public void onCreateOptionsMenu(Menu menu, MenuInflater mif){
+//        super.onCreateOptionsMenu(menu,mif);
+//        mif.inflate(R.menu.activity_main_menu,menu);
+//
+//        MenuItem searchItem = menu.findItem(R.id.menu_item_search);
+//        mSearchView = (SearchView) searchItem.getActionView();
+//
+//        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+//            @Override
+//            public boolean onQueryTextChange(String text){
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean onQueryTextSubmit(String query){
+//
+//                return true;
+//            }
+//        });
+//    }
+
     private void fetchingData(int requestCode){
         if(isFetching())return;
         Intent i = null;
@@ -162,7 +195,10 @@ public class MainFragment extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-        mLocalBroadcastManager.registerReceiver(mUpdateReceiver,new IntentFilter(GankIODataService.ACTION_UPDATE_DATA));
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(GankIODataService.ACTION_QUERY);
+        intentFilter.addAction(GankIODataService.ACTION_UPDATE_DATA);
+        mLocalBroadcastManager.registerReceiver(mUpdateReceiver,intentFilter);
         mToolbar = ((MainActivity)getActivity()).getToolbar();
     }
 
@@ -184,10 +220,17 @@ public class MainFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent){
             Log.i(TAG,"got the broadcast");
-            RealmResults<Article> realmResults = mRealm.where(Article.class).findAll();
-            Log.i(TAG,"got "+realmResults.size()+" articles");
-            updateRecyclerView();
-            setIsFetching(false);
+            String action = intent.getAction();
+            if(action==GankIODataService.ACTION_UPDATE_DATA) {
+                RealmResults<Article> realmResults = mRealm.where(Article.class).findAll();
+                Log.i(TAG, "got " + realmResults.size() + " articles");
+                updateRecyclerView();
+                setIsFetching(false);
+            }
+            else if(action==GankIODataService.ACTION_QUERY){
+                RealmResults<Article> realmResults = mRealm.where(Article.class).equalTo("isSearchingResult",true).findAll();
+                Log.i(TAG,"got " + realmResults.size() + "searching articles");
+            }
         }
     }
 

@@ -1,6 +1,8 @@
 package com.example.xkwei.gankio.utils;
 
 import android.net.Uri;
+import android.renderscript.Double2;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.Log;
 
 import com.example.xkwei.gankio.models.Article;
@@ -44,6 +46,7 @@ public class GankIOAPI {
             "who": "Jin"
     ***/
     public static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.S'Z'", Locale.CHINA);
+    public static final SimpleDateFormat DATE_FORMATTER2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.S",Locale.CHINA);
     public static Date parseDate(String dateString){
         if(null==dateString){
             Log.i(TAG,"missing the date");
@@ -53,11 +56,43 @@ public class GankIOAPI {
         try{
             date = DATE_FORMATTER.parse(dateString);
         }catch(ParseException pe){
-            Log.i(TAG,"cannot parse the date string "+dateString);
+            Log.i(TAG,"cannot parse the date string "+dateString +" trying to use the Formatter2");
+            try{
+                date = DATE_FORMATTER2.parse(dateString);
+            }catch(ParseException pe2){
+                Log.i(TAG,"still cannot parse the date string");
+            }
         }
         return date;
     }
 
+    /***
+     * http://gank.io/api/search/query/listview/category/Android/count/10/page/1
+     * @param query
+     * @param pageNum
+     * @return
+     */
+    public static RealmList<Article> getQueryResult(String query,int pageNum){
+        Uri uri = null;
+        String url = null;
+        RealmList<Article> articles = null;
+            uri = new Uri.Builder().scheme("http")
+                    .authority(Constants.BASE_URL)
+                    .appendPath(Constants.GANK_API)
+                    .appendPath(Constants.SEARCH)
+                    .appendPath(Constants.QUERY)
+                    .appendPath(query)
+                    .appendPath(Constants.GANK_PATH_CATEGORY)
+                    .appendPath(Constants.ALL)
+                    .appendPath(Constants.GANK_PATH_COUNT)
+                    .appendPath("10")
+                    .appendPath(Constants.GANK_PATH_PAGE)
+                    .appendPath(Integer.toString(pageNum))
+                    .build();
+            JSONObject job = getUriJSONObject(uri);
+            articles = parseJSONObject(job,true);
+        return articles;
+    }
     public static RealmList<Article> getData(String type,int pageNum){
         Uri uri = null;
         String url = null;
@@ -74,12 +109,12 @@ public class GankIOAPI {
                     .appendPath(Integer.toString(pageNum))
                     .build();
             JSONObject job = getUriJSONObject(uri);
-            articles = parseJSONObject(job);
+            articles = parseJSONObject(job,false);
         }
         return articles;
     }
 
-    private static RealmList<Article> parseJSONObject(JSONObject job){
+    private static RealmList<Article> parseJSONObject(JSONObject job,boolean isQuery){
         RealmList<Article> articles = new RealmList<>();
 
         try {
@@ -87,15 +122,19 @@ public class GankIOAPI {
             JSONObject result;
             for(int i=0;i<results.length();i++){
                 result = results.getJSONObject(i);
-                Article article = new Article(result.getString(Constants.JSON_RESULT_ID));
-                article.setAuthor(result.getString(Constants.JSON_RESULT_AUTHOR));
-                article.setCreateDate(result.getString(Constants.JSON_RESULT_CREATE_DATE));
+                Article article = new Article(result.getString(isQuery?Constants.JSON_RESULT_ID_GANHUO:Constants.JSON_RESULT_ID));
                 article.setDescription(result.getString(Constants.JSON_RESULT_DESCRITION));
-                article.setUrl(result.getString(Constants.JSON_RESULT_URL));
-                article.setType(result.getString(Constants.JSON_RESULT_TYPE));
                 article.setPublishDate(result.getString(Constants.JSON_REUSLT_PUBLISH_DATE));
+                article.setType(result.getString(Constants.JSON_RESULT_TYPE));
+                article.setUrl(result.getString(Constants.JSON_RESULT_URL));
+                article.setAuthor(result.getString(Constants.JSON_RESULT_AUTHOR));
+
+                if(!isQuery) {
+                    article.setCreateDate(result.getString(Constants.JSON_RESULT_CREATE_DATE));
+                    article.setTitle();
+                }
+                article.setSearchingResult(isQuery);
                 article.setDate(parseDate(article.getPublishDate()));
-                article.setTitle();
                 articles.add(article);
                 Log.i(TAG,"got the Article "+article.getUrl());
             }

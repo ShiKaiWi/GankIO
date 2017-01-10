@@ -7,4 +7,6 @@
     <string name="category_app">App</string>
     <string name="drawer_open">Drawer is opened</string>
     <string name="drawer_close">Drawer is closed</string>
+    <string name="search">Search</string>
+    <string name="clear_search_history">Clear Queries</string>
 </resources>

@@ -27,6 +27,15 @@ public class Article extends RealmObject{
     private String mType;
     private String mTitle;
 
+    public boolean isSearchingResult() {
+        return isSearchingResult;
+    }
+
+    public void setSearchingResult(boolean searchingResult) {
+        isSearchingResult = searchingResult;
+    }
+
+    private boolean isSearchingResult;
     public String getTitle() {
         return mTitle;
     }

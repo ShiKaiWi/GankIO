@@ -17,8 +17,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ArticlePageActivity"/>
-        <service android:name=".services.GankIODataService">
-        </service>
+        <service android:name=".services.GankIODataService"/>
     </application>
 
 </manifest>
