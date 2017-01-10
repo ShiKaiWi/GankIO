@@ -47,12 +47,12 @@ public class ArticlePageActivity extends AppCompatActivity {
             @Override
             public boolean onDown(MotionEvent me){
                 Log.i(TAG,"onDown");
-                return false;
+                return true;
             }
             @Override
             public boolean onFling(MotionEvent me1, MotionEvent me2, float velocityX,float velocityY){
                 Log.i(TAG,"on Fling at speedX: " +velocityX +"|speedY: "+velocityY);
-                if(Math.abs(me1.getY()-me2.getY())<200&&velocityX>500&&(me2.getX()-me1.getX())>200) {
+                if(Math.abs(me1.getY()-me2.getY())<200&&velocityX>300&&(me2.getX()-me1.getX())>200) {
                     onBackPressed();
                     return true;
                 }
@@ -78,6 +78,7 @@ public class ArticlePageActivity extends AppCompatActivity {
         }
         return true;
     }
+
 
     @Override
     public void onBackPressed(){

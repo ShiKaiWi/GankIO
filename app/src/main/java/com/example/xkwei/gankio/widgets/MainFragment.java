@@ -163,6 +163,7 @@ public class MainFragment extends Fragment {
     public void onResume(){
         super.onResume();
         mLocalBroadcastManager.registerReceiver(mUpdateReceiver,new IntentFilter(GankIODataService.ACTION_UPDATE_DATA));
+        mToolbar = ((MainActivity)getActivity()).getToolbar();
     }
 
     @Override

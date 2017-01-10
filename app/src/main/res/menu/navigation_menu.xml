@@ -2,19 +2,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
         <item android:id="@+id/navigation_menu_android"
-              android:icon="@drawable/ic_drawer"
+              android:icon="@drawable/android"
               android:title="@string/category_android"/>
 
         <item android:id="@+id/navigation_menu_ios"
-              android:icon="@drawable/ic_drawer"
+              android:icon="@drawable/apple"
               android:title="@string/category_ios"/>
 
         <item android:id="@+id/navigation_menu_web_front"
-              android:icon="@drawable/ic_drawer"
+              android:icon="@drawable/js"
               android:title="@string/category_web_front"/>
 
         <item android:id="@+id/navigation_menu_app"
-              android:icon="@drawable/ic_drawer"
+              android:icon="@drawable/application"
               android:title="@string/category_app"/>
     </group>
 </menu>
