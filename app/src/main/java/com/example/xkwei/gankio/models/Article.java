@@ -1,7 +1,8 @@
 package com.example.xkwei.gankio.models;
 
-import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
@@ -25,17 +26,11 @@ public class Article extends RealmObject{
     private Date mDate;
     private String mAuthor;
     private String mType;
+    @Ignore
     private String mTitle;
+    private String mTags;
 
-    public boolean isSearchingResult() {
-        return isSearchingResult;
-    }
-
-    public void setSearchingResult(boolean searchingResult) {
-        isSearchingResult = searchingResult;
-    }
-
-    private boolean isSearchingResult;
+    public Article(){}
     public String getTitle() {
         return mTitle;
     }
@@ -56,12 +51,18 @@ public class Article extends RealmObject{
         mDate = date;
     }
 
-    public Article(String id) {
-        mId = id;
+    public String getTags() {
+        return mTags;
     }
 
-    public Article(){
-
+    public void addTag(String tag){
+        if(null!= mTags)
+            mTags += tag;
+        else
+            mTags = tag;
+    }
+    public Article(String id) {
+        mId = id;
     }
 
     public String getId() {

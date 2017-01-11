@@ -1,30 +1,19 @@
 package com.example.xkwei.gankio.widgets;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.GestureDetectorCompat;
-import android.support.v4.view.MenuCompat;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
@@ -43,17 +32,18 @@ import io.realm.Realm;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.Sort;
-import java.lang.Math;
+
 /**
- * Created by xkwei on 01/01/2017.
+ * Created by xkwei on 11/01/2017.
  */
 
-public class MainFragment extends Fragment {
+public class SearchFragment extends Fragment {
     private static final int REFRESHING= 0 ;
     private static final int LOADING_MORE= 1;
 
-    private static final String TAG = "MainFragment";
-    private UpdateReceiver mUpdateReceiver;
+    private static final String TAG = "SearchFragment";
+    private static final String QUERY = "SearchFragmentQuery";
+    private SearchFragment.UpdateReceiver mUpdateReceiver;
     private LocalBroadcastManager mLocalBroadcastManager;
     private Realm mRealm;
     private RecyclerView mRecyclerView;
@@ -62,37 +52,37 @@ public class MainFragment extends Fragment {
     private boolean mIsLoadingMore;
     private RecyclerView.LayoutManager mLayoutManager;
     private int mPageNumber;
-    private int mCategoryIndex;
     private Toolbar mToolbar;
+    private String mQuery;
 
-    public static final String CATEGORY="MianFragment_Category_Index";
-
-
-
-    public static Fragment getInstance(int categoryIndex){
+    public static Fragment getInstance(String query){
         Bundle args = new Bundle();
-        args.putInt(CATEGORY,categoryIndex);
-        Fragment fg = new MainFragment();
+        args.putString(QUERY,query);
+        Fragment fg = new SearchFragment();
         fg.setArguments(args);
         return fg;
     }
-    public static Fragment getInstance(){
-        return getInstance(0);
+
+    public String getQuery() {
+        return mQuery;
+    }
+
+    public void setQuery(String query) {
+        mQuery = query;
+        updateRecyclerView();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        mQuery = getArguments().getString(QUERY);
         mIsLoadingMore = mIsRefreshing = false;
         mRealm = Realm.getDefaultInstance();
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
-        mUpdateReceiver = new UpdateReceiver();
-        mLocalBroadcastManager.registerReceiver(mUpdateReceiver,new IntentFilter(GankIODataService.ACTION_UPDATE_DATA));
+        mUpdateReceiver = new SearchFragment.UpdateReceiver();
+        mLocalBroadcastManager.registerReceiver(mUpdateReceiver,new IntentFilter(GankIODataService.ACTION_QUERY));
         mPageNumber = 1;
-
-        Bundle args = getArguments();
-        mCategoryIndex = args.getInt(CATEGORY);
         fetchingData(REFRESHING);
         mToolbar = ((MainActivity)getActivity()).getToolbar();
     }
@@ -108,7 +98,6 @@ public class MainFragment extends Fragment {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-
                 if(isToolBarVisible && dy>0 || !isToolBarVisible && dy<0){
                     deltaY+=dy;
                 }
@@ -132,44 +121,22 @@ public class MainFragment extends Fragment {
         });
 
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mAdapter = new ArticleRecyclerViewAdapter(getActivity(), mRealm.where(Article.class).findAllSorted("mDate", Sort.DESCENDING));
+        mAdapter = new SearchFragment.ArticleRecyclerViewAdapter(getActivity(), mRealm.where(Article.class).findAllSorted("mDate", Sort.DESCENDING));
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
         return v;
     }
-
-//    @Override
-//    public void onCreateOptionsMenu(Menu menu, MenuInflater mif){
-//        super.onCreateOptionsMenu(menu,mif);
-//        mif.inflate(R.menu.activity_main_menu,menu);
-//
-//        MenuItem searchItem = menu.findItem(R.id.menu_item_search);
-//        mSearchView = (SearchView) searchItem.getActionView();
-//
-//        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
-//            @Override
-//            public boolean onQueryTextChange(String text){
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onQueryTextSubmit(String query){
-//
-//                return true;
-//            }
-//        });
-//    }
 
     private void fetchingData(int requestCode){
         if(isFetching())return;
         Intent i = null;
         if(requestCode==REFRESHING){
             mIsRefreshing = true;
-            i = GankIODataService.newIntentWithTypeAndPage(getActivity(), Constants.CATEGORY[mCategoryIndex],1);
+            i = GankIODataService.newIntentForSearch(getActivity(), mQuery);
         }
         else if(requestCode==LOADING_MORE){
             mIsLoadingMore = true;
-            i = GankIODataService.newIntentWithTypeAndPage(getActivity(), Constants.CATEGORY[mCategoryIndex],++mPageNumber);
+            i = GankIODataService.newIntentForSearchWithPage(getActivity(), mQuery,++mPageNumber);
         }
         if(null!=i)
             getActivity().startService(i);
@@ -193,7 +160,7 @@ public class MainFragment extends Fragment {
     public void onResume(){
         super.onResume();
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(GankIODataService.ACTION_UPDATE_DATA);
+        intentFilter.addAction(GankIODataService.ACTION_QUERY);
         mLocalBroadcastManager.registerReceiver(mUpdateReceiver,intentFilter);
         mToolbar = ((MainActivity)getActivity()).getToolbar();
     }
@@ -208,20 +175,21 @@ public class MainFragment extends Fragment {
     private boolean isFetching(){
         return mIsRefreshing||mIsLoadingMore;
     }
-    private void setIsFetching(boolean isFetcing){
-        mIsLoadingMore = isFetcing;
-        mIsRefreshing = isFetcing;
+
+    private void setIsFetching(boolean isFetching){
+        mIsLoadingMore = isFetching;
+        mIsRefreshing = isFetching;
     }
-    private class UpdateReceiver extends BroadcastReceiver{
+
+    private class UpdateReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent){
             Log.i(TAG,"got the broadcast");
             String action = intent.getAction();
-            if(action==GankIODataService.ACTION_UPDATE_DATA) {
-                RealmResults<Article> realmResults = mRealm.where(Article.class).findAll();
-                Log.i(TAG, "got " + realmResults.size() + " articles");
+            if(action==GankIODataService.ACTION_QUERY){
+                RealmResults<Article> realmResults = mRealm.where(Article.class).contains("mTags",mQuery).findAllSorted("mDate",Sort.DESCENDING);
+                Log.i(TAG,"got " + realmResults.size() + " searching articles");
                 updateRecyclerView();
-                setIsFetching(false);
             }
         }
     }
@@ -252,15 +220,15 @@ public class MainFragment extends Fragment {
         }
     }
 
-    private class ArticleRecyclerViewAdapter extends RealmRecyclerViewAdapter<Article,ArticleHolder>{
+    private class ArticleRecyclerViewAdapter extends RealmRecyclerViewAdapter<Article,SearchFragment.ArticleHolder> {
         @Override
-        public ArticleHolder onCreateViewHolder(ViewGroup vg,int viewType){
+        public SearchFragment.ArticleHolder onCreateViewHolder(ViewGroup vg, int viewType){
             View v = LayoutInflater.from(getActivity()).inflate(R.layout.article_fragment_main_recyclerview_item,vg,false);
-            return new ArticleHolder(v);
+            return new SearchFragment.ArticleHolder(v);
         }
 
         @Override
-        public void onBindViewHolder(ArticleHolder ahd,int position){
+        public void onBindViewHolder(SearchFragment.ArticleHolder ahd, int position){
             Article article = getData().get(position);
             ahd.bindArticleItem(article);
         }
@@ -271,8 +239,10 @@ public class MainFragment extends Fragment {
     }
 
     private void updateRecyclerView() {
-        RealmResults<Article> items = mRealm.where(Article.class).equalTo("mType",Constants.CATEGORY[mCategoryIndex]).findAllSorted("mDate", Sort.DESCENDING);
-        ((ArticleRecyclerViewAdapter)mAdapter).updateData(items);
+        RealmResults<Article> items =
+                mRealm.where(Article.class).contains("mTags",mQuery).findAllSorted("mDate", Sort.DESCENDING);
+
+        ((SearchFragment.ArticleRecyclerViewAdapter)mAdapter).updateData(items);
     }
 
     private void hideOrShowToolbar(boolean shouldBeVisible){

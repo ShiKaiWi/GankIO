@@ -19,11 +19,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 
 import com.example.xkwei.gankio.services.GankIODataService;
 import com.example.xkwei.gankio.utils.Constants;
 import com.example.xkwei.gankio.widgets.MainFragment;
+import com.example.xkwei.gankio.widgets.SearchFragment;
 
 import java.text.ParseException;
 
@@ -39,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private NavigationView mNavigationView;
     private Toolbar mToolbar;
     private SearchView mSearchView;
+    private boolean mIsSearching;
     private Fragment createFragment(int CategoryIndex){
 
         return MainFragment.getInstance(CategoryIndex);
@@ -61,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         FragmentManager fm = getSupportFragmentManager();
         Fragment fg = fm.findFragmentById(R.id.main_fragment_container);
+        mIsSearching = false;
         if(fg==null){
             fg = createFragment();
             fm.beginTransaction().add(R.id.main_fragment_container,fg).commit();
@@ -153,9 +157,29 @@ public class MainActivity extends AppCompatActivity {
         MenuInflater mif = getMenuInflater();
         mif.inflate(R.menu.activity_main_menu,menu);
         mSearchView = (SearchView) menu.findItem(R.id.menu_item_search).getActionView();
+        mSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                mToolbar.setTitle("Searching Results");
+                return false;
+            }
+        });
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                FrameLayout fml = (FrameLayout)findViewById(R.id.search_fragment_container);
+                fml.setVisibility(View.VISIBLE);
+                fml = (FrameLayout)findViewById(R.id.main_fragment_container);
+                fml.setVisibility(View.GONE);
+                FragmentManager fm = getSupportFragmentManager();
+                Fragment fg = fm.findFragmentById(R.id.search_fragment_container);
+                if(null==fg){
+                    fg = SearchFragment.getInstance(query);
+                    fm.beginTransaction().add(R.id.search_fragment_container,fg).commit();
+                }else{
+                    ((SearchFragment)fg).setQuery(query);
+                }
+                mIsSearching = true;
                 Intent i = GankIODataService.newIntentForSearch(MainActivity.this,query);
                 startService(i);
                 return false;
@@ -167,6 +191,7 @@ public class MainActivity extends AppCompatActivity {
         });
         return true;
     }
+
     @Override
     public void onConfigurationChanged(Configuration newConfig){
         super.onConfigurationChanged(newConfig);
@@ -188,5 +213,15 @@ public class MainActivity extends AppCompatActivity {
     public void onPause(){
         super.onPause();
         mDrawerLayout.setDrawerLockMode( DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    }
+
+    @Override
+    public void onBackPressed(){
+        if(mIsSearching){
+            FrameLayout fml = (FrameLayout)findViewById(R.id.search_fragment_container);
+            fml.setVisibility(View.GONE);
+            return;
+        }
+        super.onBackPressed();
     }
 }

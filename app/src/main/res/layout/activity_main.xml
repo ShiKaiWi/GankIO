@@ -18,6 +18,12 @@
         android:id="@+id/main_fragment_container">
     </FrameLayout>
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/search_fragment_container"
+        android:visibility="gone">
+    </FrameLayout>
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/main_activity_toolbar"

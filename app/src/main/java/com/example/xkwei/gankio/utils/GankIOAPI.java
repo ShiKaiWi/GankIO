@@ -74,28 +74,26 @@ public class GankIOAPI {
      */
     public static RealmList<Article> getQueryResult(String query,int pageNum){
         Uri uri = null;
-        String url = null;
         RealmList<Article> articles = null;
-            uri = new Uri.Builder().scheme("http")
-                    .authority(Constants.BASE_URL)
-                    .appendPath(Constants.GANK_API)
-                    .appendPath(Constants.SEARCH)
-                    .appendPath(Constants.QUERY)
-                    .appendPath(query)
-                    .appendPath(Constants.GANK_PATH_CATEGORY)
-                    .appendPath(Constants.ALL)
-                    .appendPath(Constants.GANK_PATH_COUNT)
-                    .appendPath("10")
-                    .appendPath(Constants.GANK_PATH_PAGE)
-                    .appendPath(Integer.toString(pageNum))
-                    .build();
-            JSONObject job = getUriJSONObject(uri);
-            articles = parseJSONObject(job,true);
+        uri = new Uri.Builder().scheme("http")
+                .authority(Constants.BASE_URL)
+                .appendPath(Constants.GANK_API)
+                .appendPath(Constants.SEARCH)
+                .appendPath(Constants.QUERY)
+                .appendPath(query)
+                .appendPath(Constants.GANK_PATH_CATEGORY)
+                .appendPath(Constants.ALL)
+                .appendPath(Constants.GANK_PATH_COUNT)
+                .appendPath("10")
+                .appendPath(Constants.GANK_PATH_PAGE)
+                .appendPath(Integer.toString(pageNum))
+                .build();
+        JSONObject job = getUriJSONObject(uri);
+        articles = parseJSONObject(job,query);
         return articles;
     }
     public static RealmList<Article> getData(String type,int pageNum){
         Uri uri = null;
-        String url = null;
         RealmList<Article> articles = null;
         for(String definedTypes:Constants.CATEGORY){
             if(type.equals(definedTypes))
@@ -109,12 +107,13 @@ public class GankIOAPI {
                     .appendPath(Integer.toString(pageNum))
                     .build();
             JSONObject job = getUriJSONObject(uri);
-            articles = parseJSONObject(job,false);
+            articles = parseJSONObject(job,null);
         }
         return articles;
     }
 
-    private static RealmList<Article> parseJSONObject(JSONObject job,boolean isQuery){
+    private static RealmList<Article> parseJSONObject(JSONObject job,String query){
+        boolean isQuery = query!=null;
         RealmList<Article> articles = new RealmList<>();
 
         try {
@@ -131,9 +130,11 @@ public class GankIOAPI {
 
                 if(!isQuery) {
                     article.setCreateDate(result.getString(Constants.JSON_RESULT_CREATE_DATE));
-                    article.setTitle();
+//                    article.setTitle();
                 }
-                article.setSearchingResult(isQuery);
+                else{
+                    article.addTag(query);
+                }
                 article.setDate(parseDate(article.getPublishDate()));
                 articles.add(article);
                 Log.i(TAG,"got the Article "+article.getUrl());
