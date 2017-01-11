@@ -8,10 +8,9 @@
     android:layout_height="match_parent"
     tools:context="com.example.xkwei.gankio.MainActivity">
 <FrameLayout
+    android:id="@+id/main_activity_frame_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
-
+    android:layout_height="match_parent">
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

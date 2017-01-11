@@ -11,6 +11,8 @@ import java.util.Locale;
 public class DateUtils {
     private static SimpleDateFormat mDateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
     public static String dateToString(Date date){
-        return mDateFormatter.format(date);
+        if(null!=date)
+            return mDateFormatter.format(date);
+        return "";
     }
 }

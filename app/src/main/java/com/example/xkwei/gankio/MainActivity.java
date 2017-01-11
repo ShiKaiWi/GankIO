@@ -6,7 +6,6 @@ import android.os.Build;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -17,31 +16,26 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
-import android.widget.ListView;
 
 import com.example.xkwei.gankio.services.GankIODataService;
 import com.example.xkwei.gankio.utils.Constants;
 import com.example.xkwei.gankio.widgets.MainFragment;
 import com.example.xkwei.gankio.widgets.SearchFragment;
 
-import java.text.ParseException;
-
 public class MainActivity extends AppCompatActivity {
 
 //    private GestureDetectorCompat mDetector;
     private static final String DEBUG_TAG="MainActivity";
-    private ListView mDrawerList;
     private ActionBarDrawerToggle mActionBarDrawerToggle;
     private DrawerLayout mDrawerLayout;
     private int[] mCategoryId;
-    private int lastCategoryIndex;
+    private int currentCategoryIndex;
     private NavigationView mNavigationView;
     private Toolbar mToolbar;
     private SearchView mSearchView;
     private boolean mIsSearching;
+    private String currentQuery;
     private Fragment createFragment(int CategoryIndex){
 
         return MainFragment.getInstance(CategoryIndex);
@@ -62,15 +56,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mIsSearching = false;
+
         FragmentManager fm = getSupportFragmentManager();
         Fragment fg = fm.findFragmentById(R.id.main_fragment_container);
-        mIsSearching = false;
         if(fg==null){
             fg = createFragment();
             fm.beginTransaction().add(R.id.main_fragment_container,fg).commit();
         }
+        fg = fm.findFragmentById(R.id.search_fragment_container);
+        if(null==fg){
+            fg = SearchFragment.getInstance();
+            fm.beginTransaction().add(R.id.search_fragment_container,fg).commit();
+        }
 
-        lastCategoryIndex = 0;
+        currentCategoryIndex = 0;
         mCategoryId = Constants.CATEGORY_ID;
         mDrawerLayout = (DrawerLayout)findViewById(R.id.main_activity_drawerLayout);
         mNavigationView = (NavigationView)findViewById(R.id.main_activity_drawerLayout_navigation_bar);
@@ -79,16 +79,21 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(MenuItem mit){
                 int id = mit.getItemId();
                 for(int i=0;i<mCategoryId.length;i++) {
-                    if(id==mCategoryId[i]&&i!=lastCategoryIndex){
+                    if(id==mCategoryId[i]&&i!= currentCategoryIndex){
                         FragmentManager fm = getSupportFragmentManager();
                         Fragment fg = createFragment(i);
                         fm.beginTransaction().replace(R.id.main_fragment_container, fg).commitNow();
                         mToolbar.setTitle(Constants.CATEGORY[i]);
-                        lastCategoryIndex = i;
+                        currentCategoryIndex = i;
                     }
+                }
+                if(mIsSearching){
+                    mIsSearching = false;
+                    updateVisibilityOfFragments();
                 }
                 mNavigationView.setCheckedItem(id);
                 mDrawerLayout.closeDrawer(mNavigationView);
+                invalidateOptionsMenu();
                 return true;
             }
         });
@@ -108,11 +113,11 @@ public class MainActivity extends AppCompatActivity {
 //        mDrawerList.setOnItemClickListener(new ListView.OnItemClickListener(){
 //            @Override
 //            public void onItemClick(AdapterView<?> parent, View view,int position,long id){
-//                if(position!=lastCategoryIndex) {
+//                if(position!=currentCategoryIndex) {
 //                    FragmentManager fm = getSupportFragmentManager();
 //                    Fragment fg = createFragment(position);
 //                    fm.beginTransaction().replace(R.id.main_fragment_container, fg).commitNow();
-//                    lastCategoryIndex = position;
+//                    currentCategoryIndex = position;
 //                }
 //                mDrawerList.setItemChecked(position, true);
 //                mDrawerLayout.closeDrawer(mDrawerList);
@@ -121,11 +126,14 @@ public class MainActivity extends AppCompatActivity {
 
         mToolbar = (Toolbar) findViewById(R.id.main_activity_toolbar);
         mToolbar.setTitle(Constants.ANDROID);
+
         if(Build.VERSION.SDK_INT>22)
             mToolbar.setTitleTextColor(getResources().getColor(android.R.color.white,getTheme()));
         else
             mToolbar.setTitleTextColor(getResources().getColor(android.R.color.white));
+
         setSupportActionBar(mToolbar);
+
         mActionBarDrawerToggle = new ActionBarDrawerToggle(this,mDrawerLayout,mToolbar,R.string.drawer_open,R.string.drawer_close){
             @Override
             public void onDrawerClosed(View view){
@@ -156,21 +164,23 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater mif = getMenuInflater();
         mif.inflate(R.menu.activity_main_menu,menu);
-        mSearchView = (SearchView) menu.findItem(R.id.menu_item_search).getActionView();
-        mSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-                mToolbar.setTitle("Searching Results");
-                return false;
-            }
-        });
+        final MenuItem searchItem = menu.findItem(R.id.menu_item_search);
+        mSearchView = (SearchView) searchItem.getActionView();
+        mSearchView.setIconifiedByDefault(true);
+//        mSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
+//            @Override
+//            public boolean onClose() {
+//                mToolbar.setTitle("Articles about \"" + currentQuery+"\"");
+//                return false;
+//            }
+//        });
+
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                FrameLayout fml = (FrameLayout)findViewById(R.id.search_fragment_container);
-                fml.setVisibility(View.VISIBLE);
-                fml = (FrameLayout)findViewById(R.id.main_fragment_container);
-                fml.setVisibility(View.GONE);
+                mIsSearching = true;
+                currentQuery = query;
+                updateVisibilityOfFragments();
                 FragmentManager fm = getSupportFragmentManager();
                 Fragment fg = fm.findFragmentById(R.id.search_fragment_container);
                 if(null==fg){
@@ -179,7 +189,8 @@ public class MainActivity extends AppCompatActivity {
                 }else{
                     ((SearchFragment)fg).setQuery(query);
                 }
-                mIsSearching = true;
+//                searchItem.collapseActionView();
+                invalidateOptionsMenu();
                 Intent i = GankIODataService.newIntentForSearch(MainActivity.this,query);
                 startService(i);
                 return false;
@@ -192,6 +203,22 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    private void updateVisibilityOfFragments(){
+        FrameLayout mainFragmentContainer = (FrameLayout)findViewById(R.id.main_fragment_container);
+        FrameLayout searchFragmentContainer =(FrameLayout)findViewById(R.id.search_fragment_container);
+        if(mIsSearching){
+            searchFragmentContainer.setVisibility(View.VISIBLE);
+            mainFragmentContainer.setVisibility(View.INVISIBLE);
+            mToolbar.setTitle("\"" + currentQuery + "\"");
+        }
+        else{
+            searchFragmentContainer.setVisibility(View.INVISIBLE);
+            mainFragmentContainer.setVisibility(View.VISIBLE);
+            mToolbar.setTitle(Constants.CATEGORY[currentCategoryIndex]);
+        }
+//        FrameLayout mainFrameLayOut = (FrameLayout) findViewById(R.id.main_activity_frame_layout);
+//        mainFrameLayOut.invalidate();
+    }
     @Override
     public void onConfigurationChanged(Configuration newConfig){
         super.onConfigurationChanged(newConfig);
@@ -218,8 +245,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed(){
         if(mIsSearching){
-            FrameLayout fml = (FrameLayout)findViewById(R.id.search_fragment_container);
-            fml.setVisibility(View.GONE);
+            mIsSearching = false;
+            updateVisibilityOfFragments();
             return;
         }
         super.onBackPressed();

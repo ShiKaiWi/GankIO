@@ -63,6 +63,10 @@ public class SearchFragment extends Fragment {
         return fg;
     }
 
+    public static Fragment getInstance(){
+        return getInstance("");
+    }
+
     public String getQuery() {
         return mQuery;
     }
@@ -83,7 +87,8 @@ public class SearchFragment extends Fragment {
         mUpdateReceiver = new SearchFragment.UpdateReceiver();
         mLocalBroadcastManager.registerReceiver(mUpdateReceiver,new IntentFilter(GankIODataService.ACTION_QUERY));
         mPageNumber = 1;
-        fetchingData(REFRESHING);
+        if(mQuery.length()>0)
+            fetchingData(REFRESHING);
         mToolbar = ((MainActivity)getActivity()).getToolbar();
     }
 
@@ -190,6 +195,7 @@ public class SearchFragment extends Fragment {
                 RealmResults<Article> realmResults = mRealm.where(Article.class).contains("mTags",mQuery).findAllSorted("mDate",Sort.DESCENDING);
                 Log.i(TAG,"got " + realmResults.size() + " searching articles");
                 updateRecyclerView();
+                setIsFetching(false);
             }
         }
     }
@@ -241,7 +247,6 @@ public class SearchFragment extends Fragment {
     private void updateRecyclerView() {
         RealmResults<Article> items =
                 mRealm.where(Article.class).contains("mTags",mQuery).findAllSorted("mDate", Sort.DESCENDING);
-
         ((SearchFragment.ArticleRecyclerViewAdapter)mAdapter).updateData(items);
     }
 
