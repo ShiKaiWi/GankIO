@@ -115,7 +115,8 @@ public class GankIOAPI {
     private static RealmList<Article> parseJSONObject(JSONObject job,String query){
         boolean isQuery = query!=null;
         RealmList<Article> articles = new RealmList<>();
-
+        if(job==null)
+            return articles;
         try {
             JSONArray results = job.getJSONArray(Constants.JSON_RESULTS);
             JSONObject result;

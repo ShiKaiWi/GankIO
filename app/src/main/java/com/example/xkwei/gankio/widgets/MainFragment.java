@@ -1,30 +1,18 @@
 package com.example.xkwei.gankio.widgets;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.GestureDetectorCompat;
-import android.support.v4.view.MenuCompat;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
@@ -64,10 +52,14 @@ public class MainFragment extends Fragment {
     private int mPageNumber;
     private int mCategoryIndex;
     private Toolbar mToolbar;
+    private boolean mIsSetType;
 
-    public static final String CATEGORY="MianFragment_Category_Index";
-
-
+    public static final String CATEGORY="MainFragment_Category_Index";
+    public static final int ANDROID = 0;
+    public static final int iOS = 1;
+    public static final int WEB = 2;
+    public static final int APP = 3;
+    public static final int CATEGORY_NUM = 4;
 
     public static Fragment getInstance(int categoryIndex){
         Bundle args = new Bundle();
@@ -77,9 +69,24 @@ public class MainFragment extends Fragment {
         return fg;
     }
     public static Fragment getInstance(){
-        return getInstance(0);
+        return new MainFragment();
     }
 
+    public boolean isSetType() {
+        return mIsSetType;
+    }
+
+    public void setCategoryIndex(int categoryIndex) {
+        mCategoryIndex = categoryIndex;
+        mIsSetType = true;
+    }
+
+    @Override
+    public void onAttach(Context context){
+        super.onAttach(context);
+        mToolbar = ((MainActivity)getActivity()).getToolbar();
+        fetchingData(REFRESHING);
+    }
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -92,9 +99,14 @@ public class MainFragment extends Fragment {
         mPageNumber = 1;
 
         Bundle args = getArguments();
-        mCategoryIndex = args.getInt(CATEGORY);
-        fetchingData(REFRESHING);
-        mToolbar = ((MainActivity)getActivity()).getToolbar();
+        if(null!=args) {
+            mIsSetType = true;
+            mCategoryIndex = args.getInt(CATEGORY);
+            mToolbar = ((MainActivity) getActivity()).getToolbar();
+            fetchingData(REFRESHING);
+        }
+        else
+            mIsSetType = false;
     }
 
     @Override
@@ -114,7 +126,7 @@ public class MainFragment extends Fragment {
                 }
                 if(Math.abs(deltaY)>THRESH_HOLD) {
                     if(getFirstVisiblePosition()!=0) {
-                        hideOrShowToolbar(!isToolBarVisible);
+                        toggleToolbar(!isToolBarVisible);
                         isToolBarVisible = !isToolBarVisible;
                     }
                     deltaY = 0;
@@ -162,6 +174,8 @@ public class MainFragment extends Fragment {
 
     private void fetchingData(int requestCode){
         if(isFetching())return;
+        toggleToolbar(true);
+        ((MainActivity)getActivity()).showProgressBar();
         Intent i = null;
         if(requestCode==REFRESHING){
             mIsRefreshing = true;
@@ -221,6 +235,7 @@ public class MainFragment extends Fragment {
                 RealmResults<Article> realmResults = mRealm.where(Article.class).findAll();
                 Log.i(TAG, "got " + realmResults.size() + " articles");
                 updateRecyclerView();
+                ((MainActivity)getActivity()).hideProgressBar();
                 setIsFetching(false);
             }
         }
@@ -275,7 +290,7 @@ public class MainFragment extends Fragment {
         ((ArticleRecyclerViewAdapter)mAdapter).updateData(items);
     }
 
-    private void hideOrShowToolbar(boolean shouldBeVisible){
+    private void toggleToolbar(boolean shouldBeVisible){
         int deltaY = shouldBeVisible?0:-mToolbar.getHeight();
         mToolbar.animate().translationY(deltaY).setInterpolator(new AccelerateInterpolator(2));
     }

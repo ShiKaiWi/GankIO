@@ -10,7 +10,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,7 +23,6 @@ import com.example.xkwei.gankio.MainActivity;
 import com.example.xkwei.gankio.R;
 import com.example.xkwei.gankio.models.Article;
 import com.example.xkwei.gankio.services.GankIODataService;
-import com.example.xkwei.gankio.utils.Constants;
 import com.example.xkwei.gankio.utils.DateUtils;
 
 import io.realm.OrderedRealmCollection;
@@ -87,9 +85,10 @@ public class SearchFragment extends Fragment {
         mUpdateReceiver = new SearchFragment.UpdateReceiver();
         mLocalBroadcastManager.registerReceiver(mUpdateReceiver,new IntentFilter(GankIODataService.ACTION_QUERY));
         mPageNumber = 1;
+        mToolbar = ((MainActivity)getActivity()).getToolbar();
         if(mQuery.length()>0)
             fetchingData(REFRESHING);
-        mToolbar = ((MainActivity)getActivity()).getToolbar();
+
     }
 
     @Override
@@ -108,7 +107,7 @@ public class SearchFragment extends Fragment {
                 }
                 if(Math.abs(deltaY)>THRESH_HOLD) {
                     if(getFirstVisiblePosition()!=0) {
-                        hideOrShowToolbar(!isToolBarVisible);
+                        toggleToolbar(!isToolBarVisible);
                         isToolBarVisible = !isToolBarVisible;
                     }
                     deltaY = 0;
@@ -135,6 +134,8 @@ public class SearchFragment extends Fragment {
     private void fetchingData(int requestCode){
         if(isFetching())return;
         Intent i = null;
+        toggleToolbar(true);
+        ((MainActivity)getActivity()).showProgressBar();
         if(requestCode==REFRESHING){
             mIsRefreshing = true;
             i = GankIODataService.newIntentForSearch(getActivity(), mQuery);
@@ -195,6 +196,7 @@ public class SearchFragment extends Fragment {
                 RealmResults<Article> realmResults = mRealm.where(Article.class).contains("mTags",mQuery).findAllSorted("mDate",Sort.DESCENDING);
                 Log.i(TAG,"got " + realmResults.size() + " searching articles");
                 updateRecyclerView();
+                ((MainActivity)getActivity()).hideProgressBar();
                 setIsFetching(false);
             }
         }
@@ -250,7 +252,7 @@ public class SearchFragment extends Fragment {
         ((SearchFragment.ArticleRecyclerViewAdapter)mAdapter).updateData(items);
     }
 
-    private void hideOrShowToolbar(boolean shouldBeVisible){
+    private void toggleToolbar(boolean shouldBeVisible){
         int deltaY = shouldBeVisible?0:-mToolbar.getHeight();
         mToolbar.animate().translationY(deltaY).setInterpolator(new AccelerateInterpolator(2));
     }

@@ -3,6 +3,7 @@ package com.example.xkwei.gankio;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
+import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -16,7 +17,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 
 import com.example.xkwei.gankio.services.GankIODataService;
 import com.example.xkwei.gankio.utils.Constants;
@@ -36,39 +39,75 @@ public class MainActivity extends AppCompatActivity {
     private SearchView mSearchView;
     private boolean mIsSearching;
     private String currentQuery;
-    private Fragment createFragment(int CategoryIndex){
-
-        return MainFragment.getInstance(CategoryIndex);
-    }
-    private Fragment createFragment(){
-        return createFragment(0);
-    }
+    private ProgressBar mProgressBar;
+    private Handler mHandler = new Handler();
+    private Fragment[] mMainFragments = new MainFragment[MainFragment.CATEGORY_NUM];
+    private Fragment mSearchFragment;
+    private Fragment currentVisibleFragment;
 
     public Toolbar getToolbar() {
         return mToolbar;
     }
 
-    public ActionBarDrawerToggle getActionBarDrawerToggle() {
-        return mActionBarDrawerToggle;
+
+    private void prepareFragment(){
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                FragmentManager fm = getSupportFragmentManager();
+                if(null == mSearchFragment) {
+                    mSearchFragment = SearchFragment.getInstance();
+                    fm.beginTransaction().add(R.id.search_fragment_container,mSearchFragment).commit();
+                    updateVisibilityOfFragments();
+                }
+                for(int i=0;i<mMainFragments.length;i++){
+                    if(null==mMainFragments[i]){
+                        mMainFragments[i] = MainFragment.getInstance(i);
+                        fm.beginTransaction().add(R.id.main_fragment_container,mMainFragments[i]).hide(mMainFragments[i]).commit();
+                    }
+                }
+            }
+        });
     }
 
+    private void showParticularFragment(int index){
+        FragmentManager fm = getSupportFragmentManager();
+        if(null == mMainFragments[index]){
+            mMainFragments[index] = MainFragment.getInstance(index);
+        }
+        Fragment fg = mMainFragments[index];
+        if(!((MainFragment)fg).isSetType()){
+            ((MainFragment) fg).setCategoryIndex(index);
+        }
+        if(currentVisibleFragment!=fg){
+            fm.beginTransaction().setCustomAnimations(android.R.anim.slide_in_left,android.R.anim.slide_out_right)
+                    .hide(currentVisibleFragment)
+                    .show(fg)
+                    .commit();
+            mToolbar.animate().translationY(0).setInterpolator(new AccelerateInterpolator(5));
+            currentVisibleFragment = fg;
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mIsSearching = false;
-
+        mProgressBar = (ProgressBar) findViewById(R.id.main_activity_progress_bar);
         FragmentManager fm = getSupportFragmentManager();
         Fragment fg = fm.findFragmentById(R.id.main_fragment_container);
         if(fg==null){
-            fg = createFragment();
+            fg = MainFragment.getInstance();
             fm.beginTransaction().add(R.id.main_fragment_container,fg).commit();
         }
-        fg = fm.findFragmentById(R.id.search_fragment_container);
-        if(null==fg){
-            fg = SearchFragment.getInstance();
-            fm.beginTransaction().add(R.id.search_fragment_container,fg).commit();
-        }
+        mMainFragments[MainFragment.ANDROID] = fg;
+        currentVisibleFragment = fg;
+        prepareFragment();
+//        fg = fm.findFragmentById(R.id.search_fragment_container);
+//        if(null==fg){
+//            fg = SearchFragment.getInstance();
+//            fm.beginTransaction().add(R.id.search_fragment_container,fg).commit();
+//        }
 
         currentCategoryIndex = 0;
         mCategoryId = Constants.CATEGORY_ID;
@@ -81,8 +120,10 @@ public class MainActivity extends AppCompatActivity {
                 for(int i=0;i<mCategoryId.length;i++) {
                     if(id==mCategoryId[i]&&i!= currentCategoryIndex){
                         FragmentManager fm = getSupportFragmentManager();
-                        Fragment fg = createFragment(i);
-                        fm.beginTransaction().replace(R.id.main_fragment_container, fg).commitNow();
+//                        Fragment fg = showParticularFragment(i);
+//                        Fragment fg_last = fm.findFragmentById(R.id.main_fragment_container);
+//                        fm.beginTransaction().remove(fg_last).add(R.id.main_fragment_container, fg).commit();
+                        showParticularFragment(i);
                         mToolbar.setTitle(Constants.CATEGORY[i]);
                         currentCategoryIndex = i;
                     }
@@ -184,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
                 FragmentManager fm = getSupportFragmentManager();
                 Fragment fg = fm.findFragmentById(R.id.search_fragment_container);
                 if(null==fg){
-                    fg = SearchFragment.getInstance(query);
+                    fg = null==mSearchFragment?SearchFragment.getInstance(query):mSearchFragment;
                     fm.beginTransaction().add(R.id.search_fragment_container,fg).commit();
                 }else{
                     ((SearchFragment)fg).setQuery(query);
@@ -250,5 +291,11 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         super.onBackPressed();
+    }
+    public void hideProgressBar(){
+        mProgressBar.setVisibility(View.GONE);
+    }
+    public void showProgressBar(){
+        mProgressBar.setVisibility(View.VISIBLE);
     }
 }
