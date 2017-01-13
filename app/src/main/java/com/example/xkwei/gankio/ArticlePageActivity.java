@@ -47,7 +47,7 @@ public class ArticlePageActivity extends AppCompatActivity {
             @Override
             public boolean onDown(MotionEvent me){
                 Log.i(TAG,"onDown");
-                return false;
+                return true;
             }
             @Override
             public boolean onFling(MotionEvent me1, MotionEvent me2, float velocityX,float velocityY){
@@ -65,20 +65,23 @@ public class ArticlePageActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar);
     }
 
+
     @Override
     public boolean dispatchTouchEvent(MotionEvent me){
 
         Log.i(TAG,"on Touch");
         boolean result = mDetector.onTouchEvent(me);
-//        boolean result = false;
-        if(!result){
-            super.dispatchTouchEvent(me);
-        }
-        else{
-            Log.i(TAG,"not call super dispatchTouchEvent");
-        }
+        super.dispatchTouchEvent(me);
         return true;
     }
+
+//    @Override
+//    public boolean onTouchEvent(MotionEvent me){
+//        if(mDetector.onTouchEvent(me))
+//            return true;
+//        return super.onTouchEvent(me);
+//
+//    }
 
 
     @Override
