@@ -71,6 +71,7 @@ public class SearchFragment extends Fragment {
 
     public void setQuery(String query) {
         mQuery = query;
+        fetchingData(REFRESHING);
         updateRecyclerView();
     }
 
@@ -99,6 +100,7 @@ public class SearchFragment extends Fragment {
             private final int THRESH_HOLD = 12;
             private boolean isToolBarVisible=true;
             private int deltaY=0;
+
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);

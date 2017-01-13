@@ -9,4 +9,6 @@
     <string name="drawer_close">Drawer is closed</string>
     <string name="search">Search</string>
     <string name="clear_search_history">Clear Queries</string>
+    <string name="search_hint">Search interesting Articles</string>
+    <string name="suggestion_provider">com.example.xkwei.gankio.content.SearchSuggestionProvider</string>
 </resources>

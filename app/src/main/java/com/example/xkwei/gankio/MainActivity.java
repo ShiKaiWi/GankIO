@@ -1,9 +1,13 @@
 package com.example.xkwei.gankio;
 
+import android.app.SearchManager;
+import android.app.SearchableInfo;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Handler;
+import android.provider.SearchRecentSuggestions;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -21,6 +25,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
+import com.example.xkwei.gankio.content.SearchSuggestionProvider;
 import com.example.xkwei.gankio.services.GankIODataService;
 import com.example.xkwei.gankio.utils.Constants;
 import com.example.xkwei.gankio.widgets.MainFragment;
@@ -87,6 +92,33 @@ public class MainActivity extends AppCompatActivity {
             mToolbar.animate().translationY(0).setInterpolator(new AccelerateInterpolator(5));
             currentVisibleFragment = fg;
         }
+    }
+    @Override
+    protected void onNewIntent(Intent i){
+        setIntent(i);
+        if(i.getAction().equals(Intent.ACTION_SEARCH)){
+            String query = i.getStringExtra(SearchManager.QUERY);
+            mIsSearching = true;
+            currentQuery = query;
+            updateVisibilityOfFragments();
+            SearchRecentSuggestions suggestions = new SearchRecentSuggestions(MainActivity.this,
+                    SearchSuggestionProvider.AUTHORITY,
+                    SearchSuggestionProvider.MODE);
+            suggestions.saveRecentQuery(query,null);
+            FragmentManager fm = getSupportFragmentManager();
+            Fragment fg = fm.findFragmentById(R.id.search_fragment_container);
+            if(null==fg){
+                fg = null==mSearchFragment?SearchFragment.getInstance(query):mSearchFragment;
+                fm.beginTransaction().add(R.id.search_fragment_container,fg).commit();
+            }else{
+                ((SearchFragment)fg).setQuery(query);
+            }
+            invalidateOptionsMenu();
+            return;
+
+        }
+        else
+            super.onNewIntent(i);
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -215,35 +247,53 @@ public class MainActivity extends AppCompatActivity {
 //                return false;
 //            }
 //        });
-
-        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                mIsSearching = true;
-                currentQuery = query;
-                updateVisibilityOfFragments();
-                FragmentManager fm = getSupportFragmentManager();
-                Fragment fg = fm.findFragmentById(R.id.search_fragment_container);
-                if(null==fg){
-                    fg = null==mSearchFragment?SearchFragment.getInstance(query):mSearchFragment;
-                    fm.beginTransaction().add(R.id.search_fragment_container,fg).commit();
-                }else{
-                    ((SearchFragment)fg).setQuery(query);
-                }
-//                searchItem.collapseActionView();
-                invalidateOptionsMenu();
-                Intent i = GankIODataService.newIntentForSearch(MainActivity.this,query);
-                startService(i);
-                return false;
-            }
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return true;
-            }
-        });
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchableInfo searchableInfo = searchManager.getSearchableInfo(getComponentName());
+        mSearchView.setSearchableInfo(searchableInfo);
+//        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+//            @Override
+//            public boolean onQueryTextSubmit(String query) {
+//                mIsSearching = true;
+//                currentQuery = query;
+//                updateVisibilityOfFragments();
+//                SearchRecentSuggestions suggestions = new SearchRecentSuggestions(MainActivity.this,
+//                        SearchSuggestionProvider.AUTHORITY,
+//                        SearchSuggestionProvider.MODE);
+//                suggestions.saveRecentQuery(query,null);
+//                FragmentManager fm = getSupportFragmentManager();
+//                Fragment fg = fm.findFragmentById(R.id.search_fragment_container);
+//                if(null==fg){
+//                    fg = null==mSearchFragment?SearchFragment.getInstance(query):mSearchFragment;
+//                    fm.beginTransaction().add(R.id.search_fragment_container,fg).commit();
+//                }else{
+//                    ((SearchFragment)fg).setQuery(query);
+//                }
+////                searchItem.collapseActionView();
+//                invalidateOptionsMenu();
+//                return false;
+//            }
+//            @Override
+//            public boolean onQueryTextChange(String newText) {
+//                return true;
+//            }
+//        });
         return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem){
+        int id = menuItem.getItemId();
+        switch(id){
+            case R.id.menu_item_clear_search_history:
+                SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
+                        SearchSuggestionProvider.AUTHORITY,
+                        SearchSuggestionProvider.MODE);
+                suggestions.clearHistory();
+                return true;
+            default:
+        }
+        return super.onOptionsItemSelected(menuItem);
+    }
     private void updateVisibilityOfFragments(){
         FrameLayout mainFragmentContainer = (FrameLayout)findViewById(R.id.main_fragment_container);
         FrameLayout searchFragmentContainer =(FrameLayout)findViewById(R.id.search_fragment_container);
