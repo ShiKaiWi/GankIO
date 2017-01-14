@@ -15,6 +15,7 @@ import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmQuery;
 
 /**
  * Created by xkwei on 01/01/2017.
@@ -55,9 +56,16 @@ public class GankIODataService extends IntentService {
         String type = intent.getStringExtra(Constants.ARTICLE_TYPE);
         if(null!=type) {
             articles = GankIOAPI.getData(type, pageNum);
-            mRealm.beginTransaction();
-            mRealm.copyToRealmOrUpdate(articles);
-            mRealm.commitTransaction();
+            RealmQuery<Article> mRealmQeury = mRealm.where(Article.class);
+            for(Article article:articles){
+                if(null==mRealmQeury.equalTo("mId",article.getId()).findFirst()){
+                    mRealm.beginTransaction();
+                    mRealm.copyToRealm(article);
+                    mRealm.commitTransaction();
+                }
+                else
+                    break;
+            }
             Log.i(TAG, "have finished the request for " + type + " articles");
             sendResult(ACTION_UPDATE_DATA);
             return;

@@ -4,10 +4,14 @@ package com.example.xkwei.gankio.widgets;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
@@ -32,6 +36,9 @@ public class CollectionFragment extends Fragment {
     private RecyclerView.Adapter<ArticleHolder> mAdapter;
     private Realm mRealm;
     private boolean mIsRefreshing;
+    private GestureDetector mDetector;
+
+    private static final String TAG="CollectionFragment";
 
 
     public static Fragment getInstance(){
@@ -44,6 +51,7 @@ public class CollectionFragment extends Fragment {
         mToolbar = ((MainActivity)getActivity()).getToolbar();
         mRealm = Realm.getDefaultInstance();
     }
+
 
     @Override
     public View onCreateView(LayoutInflater lif, ViewGroup container, Bundle savedInstanceState){
@@ -79,6 +87,7 @@ public class CollectionFragment extends Fragment {
         mAdapter = new ArticleRecyclerViewAdapter(getActivity(), mRealm.where(Article.class).equalTo("mIsLiked",true).findAllSorted("mDate", Sort.DESCENDING),false);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
+        updateRecyclerView();
         return v;
     }
 

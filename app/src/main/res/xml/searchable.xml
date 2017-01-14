@@ -3,7 +3,6 @@
             android:label="@string/app_name"
             android:hint="@string/search_hint"
             android:searchSuggestAuthority="@string/suggestion_provider"
-            android:searchSuggestSelection=" ?"
-    >
+            android:searchSuggestSelection=" ?">
 
 </searchable>
