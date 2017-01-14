@@ -16,5 +16,9 @@
         <item android:id="@+id/navigation_menu_app"
               android:icon="@drawable/application"
               android:title="@string/category_app"/>
+
+        <item android:id="@+id/navigation_menu_collection"
+              android:icon="@drawable/like_filled"
+              android:title="Collection"/>
     </group>
 </menu>

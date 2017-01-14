@@ -127,7 +127,7 @@ public class SearchFragment extends Fragment {
         });
 
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mAdapter = new SearchFragment.ArticleRecyclerViewAdapter(getActivity(), mRealm.where(Article.class).findAllSorted("mDate", Sort.DESCENDING));
+        mAdapter = new ArticleRecyclerViewAdapter(getActivity(), mRealm.where(Article.class).findAllSorted("mDate", Sort.DESCENDING),false);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
         return v;
@@ -204,54 +204,10 @@ public class SearchFragment extends Fragment {
         }
     }
 
-    private class ArticleHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-        TextView mAuthor,mDate,mDescription;
-        Article mArticle;
-
-        public ArticleHolder(View v){
-            super(v);
-            mAuthor = (TextView) v.findViewById(R.id.article_fragment_main_recyclerview_item_author);
-            mDate = (TextView) v.findViewById(R.id.article_fragment_main_recyclerview_item_date);
-            mDescription = (TextView) v.findViewById(R.id.article_fragment_main_recyclerview_item_description);
-            v.setOnClickListener(this);
-        }
-
-        public void bindArticleItem(Article article){
-            mArticle = article;
-            mAuthor.setText(article.getAuthor());
-            mDate.setText(DateUtils.dateToString(article.getDate()));
-            mDescription.setText(article.getDescription());
-        }
-
-        @Override
-        public void onClick(View v){
-            Intent i = ArticlePageActivity.newIntent(getActivity(), Uri.parse(mArticle.getUrl()));
-            startActivity(i);
-        }
-    }
-
-    private class ArticleRecyclerViewAdapter extends RealmRecyclerViewAdapter<Article,SearchFragment.ArticleHolder> {
-        @Override
-        public SearchFragment.ArticleHolder onCreateViewHolder(ViewGroup vg, int viewType){
-            View v = LayoutInflater.from(getActivity()).inflate(R.layout.article_fragment_main_recyclerview_item,vg,false);
-            return new SearchFragment.ArticleHolder(v);
-        }
-
-        @Override
-        public void onBindViewHolder(SearchFragment.ArticleHolder ahd, int position){
-            Article article = getData().get(position);
-            ahd.bindArticleItem(article);
-        }
-
-        public ArticleRecyclerViewAdapter(Context context, OrderedRealmCollection<Article> orc){
-            super(context,orc,true);
-        }
-    }
-
     private void updateRecyclerView() {
         RealmResults<Article> items =
                 mRealm.where(Article.class).contains("mTags",mQuery).findAllSorted("mDate", Sort.DESCENDING);
-        ((SearchFragment.ArticleRecyclerViewAdapter)mAdapter).updateData(items);
+        ((ArticleRecyclerViewAdapter)mAdapter).updateData(items);
     }
 
     private void toggleToolbar(boolean shouldBeVisible){

@@ -24,6 +24,13 @@
         android:visibility="gone">
     </FrameLayout>
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/collection_fragment_container"
+        android:visibility="gone">
+    </FrameLayout>
+
     <ProgressBar
         android:id="@+id/main_activity_progress_bar"
         android:paddingTop="?attr/actionBarSize"

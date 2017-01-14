@@ -29,6 +29,15 @@ public class Article extends RealmObject{
     @Ignore
     private String mTitle;
     private String mTags;
+    private boolean mIsLiked;
+
+    public boolean isLiked() {
+        return mIsLiked;
+    }
+
+    public void setLiked(boolean liked) {
+        mIsLiked = liked;
+    }
 
     public Article(){}
     public String getTitle() {

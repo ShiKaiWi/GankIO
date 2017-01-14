@@ -24,8 +24,8 @@
         <activity android:name=".ArticlePageActivity"
                   android:launchMode="singleTop"/>
         <service android:name=".services.GankIODataService"/>
-        <provider android:name=".content.SearchSuggestionProvider"
-                  android:authorities="com.example.xkwei.gankio.content.SearchSuggestionProvider"/>
+        <provider android:name=".contents.SearchSuggestionProvider"
+                  android:authorities="com.example.xkwei.gankio.contents.SearchSuggestionProvider"/>
     </application>
 
 </manifest>

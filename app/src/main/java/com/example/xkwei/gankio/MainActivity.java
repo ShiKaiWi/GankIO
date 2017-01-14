@@ -25,9 +25,9 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
-import com.example.xkwei.gankio.content.SearchSuggestionProvider;
-import com.example.xkwei.gankio.services.GankIODataService;
+import com.example.xkwei.gankio.contents.SearchSuggestionProvider;
 import com.example.xkwei.gankio.utils.Constants;
+import com.example.xkwei.gankio.widgets.CollectionFragment;
 import com.example.xkwei.gankio.widgets.MainFragment;
 import com.example.xkwei.gankio.widgets.SearchFragment;
 
@@ -48,7 +48,9 @@ public class MainActivity extends AppCompatActivity {
     private Handler mHandler = new Handler();
     private Fragment[] mMainFragments = new MainFragment[MainFragment.CATEGORY_NUM];
     private Fragment mSearchFragment;
+    private Fragment mCollectionFragment;
     private Fragment currentVisibleFragment;
+    private boolean mIsInCollectionView;
 
     public Toolbar getToolbar() {
         return mToolbar;
@@ -63,6 +65,11 @@ public class MainActivity extends AppCompatActivity {
                 if(null == mSearchFragment) {
                     mSearchFragment = SearchFragment.getInstance();
                     fm.beginTransaction().add(R.id.search_fragment_container,mSearchFragment).commit();
+                    updateVisibilityOfFragments();
+                }
+                if(null == mCollectionFragment){
+                    mCollectionFragment = CollectionFragment.getInstance();
+                    fm.beginTransaction().add(R.id.collection_fragment_container,mCollectionFragment).commit();
                     updateVisibilityOfFragments();
                 }
                 for(int i=0;i<mMainFragments.length;i++){
@@ -125,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mIsSearching = false;
+        mIsInCollectionView = false;
         mProgressBar = (ProgressBar) findViewById(R.id.main_activity_progress_bar);
         FragmentManager fm = getSupportFragmentManager();
         Fragment fg = fm.findFragmentById(R.id.main_fragment_container);
@@ -149,7 +157,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(MenuItem mit){
                 int id = mit.getItemId();
-                for(int i=0;i<mCategoryId.length;i++) {
+                int i = 0;
+
+                mIsSearching = false;
+                for(;i<mCategoryId.length;i++) {
                     if(id==mCategoryId[i]&&i!= currentCategoryIndex){
                         FragmentManager fm = getSupportFragmentManager();
 //                        Fragment fg = showParticularFragment(i);
@@ -158,12 +169,20 @@ public class MainActivity extends AppCompatActivity {
                         showParticularFragment(i);
                         mToolbar.setTitle(Constants.CATEGORY[i]);
                         currentCategoryIndex = i;
+                        break;
                     }
                 }
-                if(mIsSearching){
-                    mIsSearching = false;
-                    updateVisibilityOfFragments();
+                if(i==mCategoryId.length) {
+                    mIsInCollectionView = true;
+                    currentCategoryIndex = i;
+                } else{
+                    mIsInCollectionView = false;
                 }
+                updateVisibilityOfFragments();
+//                else if(mIsSearching||mIsInCollectionView){
+//                    mIsSearching = false;
+//                    mIsInCollectionView = false;
+//                }
                 mNavigationView.setCheckedItem(id);
                 mDrawerLayout.closeDrawer(mNavigationView);
                 invalidateOptionsMenu();
@@ -297,16 +316,26 @@ public class MainActivity extends AppCompatActivity {
     private void updateVisibilityOfFragments(){
         FrameLayout mainFragmentContainer = (FrameLayout)findViewById(R.id.main_fragment_container);
         FrameLayout searchFragmentContainer =(FrameLayout)findViewById(R.id.search_fragment_container);
+        FrameLayout collectionFragmentContainer = (FrameLayout)findViewById(R.id.collection_fragment_container);
+
         if(mIsSearching){
             searchFragmentContainer.setVisibility(View.VISIBLE);
             mainFragmentContainer.setVisibility(View.INVISIBLE);
+            collectionFragmentContainer.setVisibility(View.INVISIBLE);
             mToolbar.setTitle("\"" + currentQuery + "\"");
+        }
+        else if(mIsInCollectionView) {
+            searchFragmentContainer.setVisibility(View.INVISIBLE);
+            mainFragmentContainer.setVisibility(View.INVISIBLE);
+            collectionFragmentContainer.setVisibility(View.VISIBLE);
+            mToolbar.setTitle("Collection");
         }
         else{
             searchFragmentContainer.setVisibility(View.INVISIBLE);
             mainFragmentContainer.setVisibility(View.VISIBLE);
+            collectionFragmentContainer.setVisibility(View.INVISIBLE);
             mToolbar.setTitle(Constants.CATEGORY[currentCategoryIndex]);
-        }
+            }
 //        FrameLayout mainFrameLayOut = (FrameLayout) findViewById(R.id.main_activity_frame_layout);
 //        mainFrameLayOut.invalidate();
     }

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
@@ -16,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.xkwei.gankio.ArticlePageActivity;
@@ -132,7 +134,7 @@ public class MainFragment extends Fragment {
                     deltaY = 0;
                 }
                 if(!isFetching()){
-                    if(dy<0 && getFirstVisiblePosition()==0){
+                    if(dy<-30 && getFirstVisiblePosition()==0){
                         fetchingData(REFRESHING);
                     }
                     else if(dy>0 && getLastVisiblePosition()==mAdapter.getItemCount()-1)
@@ -143,8 +145,9 @@ public class MainFragment extends Fragment {
             }
         });
 
+
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mAdapter = new ArticleRecyclerViewAdapter(getActivity(), mRealm.where(Article.class).findAllSorted("mDate", Sort.DESCENDING));
+        mAdapter = new ArticleRecyclerViewAdapter(getActivity(), mRealm.where(Article.class).findAllSorted("mDate", Sort.DESCENDING),false);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
         return v;
@@ -241,49 +244,6 @@ public class MainFragment extends Fragment {
         }
     }
 
-    private class ArticleHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-        TextView mAuthor,mDate,mDescription;
-        Article mArticle;
-
-        public ArticleHolder(View v){
-            super(v);
-            mAuthor = (TextView) v.findViewById(R.id.article_fragment_main_recyclerview_item_author);
-            mDate = (TextView) v.findViewById(R.id.article_fragment_main_recyclerview_item_date);
-            mDescription = (TextView) v.findViewById(R.id.article_fragment_main_recyclerview_item_description);
-            v.setOnClickListener(this);
-        }
-
-        public void bindArticleItem(Article article){
-            mArticle = article;
-            mAuthor.setText(article.getAuthor());
-            mDate.setText(DateUtils.dateToString(article.getDate()));
-            mDescription.setText(article.getDescription());
-        }
-
-        @Override
-        public void onClick(View v){
-            Intent i = ArticlePageActivity.newIntent(getActivity(), Uri.parse(mArticle.getUrl()));
-            startActivity(i);
-        }
-    }
-
-    private class ArticleRecyclerViewAdapter extends RealmRecyclerViewAdapter<Article,ArticleHolder>{
-        @Override
-        public ArticleHolder onCreateViewHolder(ViewGroup vg,int viewType){
-            View v = LayoutInflater.from(getActivity()).inflate(R.layout.article_fragment_main_recyclerview_item,vg,false);
-            return new ArticleHolder(v);
-        }
-
-        @Override
-        public void onBindViewHolder(ArticleHolder ahd,int position){
-            Article article = getData().get(position);
-            ahd.bindArticleItem(article);
-        }
-
-        public ArticleRecyclerViewAdapter(Context context, OrderedRealmCollection<Article> orc){
-            super(context,orc,true);
-        }
-    }
 
     private void updateRecyclerView() {
         RealmResults<Article> items = mRealm.where(Article.class).equalTo("mType",Constants.CATEGORY[mCategoryIndex]).findAllSorted("mDate", Sort.DESCENDING);

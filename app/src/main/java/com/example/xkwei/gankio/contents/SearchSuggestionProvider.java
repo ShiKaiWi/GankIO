@@ -1,4 +1,4 @@
-package com.example.xkwei.gankio.content;
+package com.example.xkwei.gankio.contents;
 
 import android.content.SearchRecentSuggestionsProvider;
 
