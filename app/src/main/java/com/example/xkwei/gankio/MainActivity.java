@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mIsSearching = false;
         mIsInCollectionView = false;
-        mProgressBar = (ProgressBar) findViewById(R.id.main_activity_progress_bar);
+//        mProgressBar = (ProgressBar) findViewById(R.id.main_activity_progress_bar);
         FragmentManager fm = getSupportFragmentManager();
         Fragment fg = fm.findFragmentById(R.id.main_fragment_container);
         if(fg==null){
@@ -162,27 +162,19 @@ public class MainActivity extends AppCompatActivity {
                 mIsSearching = false;
                 for(;i<mCategoryId.length;i++) {
                     if(id==mCategoryId[i]&&i!= currentCategoryIndex){
-                        FragmentManager fm = getSupportFragmentManager();
-//                        Fragment fg = showParticularFragment(i);
-//                        Fragment fg_last = fm.findFragmentById(R.id.main_fragment_container);
-//                        fm.beginTransaction().remove(fg_last).add(R.id.main_fragment_container, fg).commit();
                         showParticularFragment(i);
                         mToolbar.setTitle(Constants.CATEGORY[i]);
                         currentCategoryIndex = i;
                         break;
                     }
                 }
-                if(i==mCategoryId.length) {
+                if(id==R.id.navigation_menu_collection) {
                     mIsInCollectionView = true;
                     currentCategoryIndex = i;
                 } else{
                     mIsInCollectionView = false;
                 }
                 updateVisibilityOfFragments();
-//                else if(mIsSearching||mIsInCollectionView){
-//                    mIsSearching = false;
-//                    mIsInCollectionView = false;
-//                }
                 mNavigationView.setCheckedItem(id);
                 mDrawerLayout.closeDrawer(mNavigationView);
                 invalidateOptionsMenu();

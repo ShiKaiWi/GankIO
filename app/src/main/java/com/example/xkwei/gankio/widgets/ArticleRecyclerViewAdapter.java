@@ -38,5 +38,6 @@ public  class ArticleRecyclerViewAdapter extends RealmRecyclerViewAdapter<Articl
 
     public ArticleRecyclerViewAdapter(Context context, OrderedRealmCollection<Article> orc){
         super(context,orc,true);
+        mContext = context;
     }
 }
