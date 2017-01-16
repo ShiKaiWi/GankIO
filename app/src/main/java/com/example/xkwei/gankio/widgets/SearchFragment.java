@@ -71,8 +71,7 @@ public class SearchFragment extends BaseFragmentWithUpdater {
         mIsLoadingMore = mIsRefreshing = false;
         mLocalBroadcastManager.registerReceiver(mUpdateReceiver,new IntentFilter(GankIODataService.ACTION_QUERY));
         mPageNumber = 1;
-        if(mQuery.length()>0)
-            fetchingData(REFRESHING);
+
 
     }
 
@@ -94,7 +93,8 @@ public class SearchFragment extends BaseFragmentWithUpdater {
                 }
             }
         });
-
+        if(mQuery.length()>0)
+            fetchingData(REFRESHING);
         return v;
     }
 
@@ -105,10 +105,12 @@ public class SearchFragment extends BaseFragmentWithUpdater {
         toggleToolbar(true);
         if(requestCode==REFRESHING){
             mIsRefreshing = true;
+            mSwipeRefreshLayout.setRefreshing(true);
             i = GankIODataService.newIntentForSearch(getActivity(), mQuery);
         }
         else if(requestCode==LOADING_MORE){
             mIsLoadingMore = true;
+            mSwipeRefreshLayout.setRefreshing(true);
             i = GankIODataService.newIntentForSearchWithPage(getActivity(), mQuery,++mPageNumber);
         }
         if(null!=i)

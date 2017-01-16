@@ -36,7 +36,7 @@ public abstract class BaseFragmentWithUpdater extends BaseFragment {
                 Log.i(TAG,"got the broadcast");
                 handleReceivedBroadCast(intent);
                 mSwipeRefreshLayout.setRefreshing(false);
-                mIsRefreshing = true;
+                setIsFetching(false);
             }
         };
         setIntentFilter();

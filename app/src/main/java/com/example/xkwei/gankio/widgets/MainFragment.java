@@ -95,16 +95,6 @@ public class MainFragment extends BaseFragmentWithUpdater {
         setIntentFilter();
         mLocalBroadcastManager.registerReceiver(mUpdateReceiver,mIntentFilter);
         mPageNumber = 1;
-
-        Bundle args = getArguments();
-        if(null!=args) {
-            mIsSetType = true;
-            mCategoryIndex = args.getInt(CATEGORY);
-            mToolbar = ((MainActivity) getActivity()).getToolbar();
-            fetchingData(REFRESHING);
-        }
-        else
-            mIsSetType = false;
     }
 
     @Override
@@ -122,6 +112,16 @@ public class MainFragment extends BaseFragmentWithUpdater {
                 }
             }
         });
+        Bundle args = getArguments();
+        if(null!=args) {
+            mIsSetType = true;
+            mCategoryIndex = args.getInt(CATEGORY);
+            mToolbar = ((MainActivity) getActivity()).getToolbar();
+            fetchingData(REFRESHING);
+        }
+        else
+            mIsSetType = false;
+
         return v;
     }
 
@@ -138,10 +138,12 @@ public class MainFragment extends BaseFragmentWithUpdater {
         Intent i = null;
         if(requestCode==REFRESHING){
             mIsRefreshing = true;
+            mSwipeRefreshLayout.setRefreshing(true);
             i = GankIODataService.newIntentWithTypeAndPage(getActivity(), Constants.CATEGORY[mCategoryIndex],1);
         }
         else if(requestCode==LOADING_MORE){
             mIsLoadingMore = true;
+            mSwipeRefreshLayout.setRefreshing(true);
             i = GankIODataService.newIntentWithTypeAndPage(getActivity(), Constants.CATEGORY[mCategoryIndex],++mPageNumber);
         }
         if(null!=i)
@@ -157,8 +159,6 @@ public class MainFragment extends BaseFragmentWithUpdater {
             RealmResults<Article> realmResults = mRealm.where(Article.class).findAll();
             Log.i(TAG, "got " + realmResults.size() + " articles");
             updateRecyclerView();
-            mSwipeRefreshLayout.setRefreshing(false);
-            setIsFetching(false);
         }
     }
 
