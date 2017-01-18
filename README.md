@@ -1,8 +1,8 @@
 ## GankIO
-This is an android application which provides the IT articles from [干货](gank.io).
+This is an android application which provides the IT articles from [干货](http://gank.io).
 
 ## Declaration
-Some icons are from [icons8](icons8.com).
+Some icons are from [icons8](https://icons8.com).
 
 ## License
 Copyright WEI,Xikai  
