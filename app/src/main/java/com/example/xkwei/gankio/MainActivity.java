@@ -33,7 +33,6 @@ import com.example.xkwei.gankio.widgets.SearchFragment;
 
 public class MainActivity extends AppCompatActivity {
 
-//    private GestureDetectorCompat mDetector;
     private static final String DEBUG_TAG="MainActivity";
     private ActionBarDrawerToggle mActionBarDrawerToggle;
     private DrawerLayout mDrawerLayout;
@@ -44,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
     private SearchView mSearchView;
     private boolean mIsSearching;
     private String currentQuery;
-    private ProgressBar mProgressBar;
     private Handler mHandler = new Handler();
     private Fragment[] mMainFragments = new MainFragment[MainFragment.CATEGORY_NUM];
     private Fragment mSearchFragment;
@@ -133,7 +131,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mIsSearching = false;
         mIsInCollectionView = false;
-//        mProgressBar = (ProgressBar) findViewById(R.id.main_activity_progress_bar);
         FragmentManager fm = getSupportFragmentManager();
         Fragment fg = fm.findFragmentById(R.id.main_fragment_container);
         if(fg==null){
@@ -143,11 +140,6 @@ public class MainActivity extends AppCompatActivity {
         mMainFragments[MainFragment.ANDROID] = fg;
         currentVisibleFragment = fg;
         prepareFragment();
-//        fg = fm.findFragmentById(R.id.search_fragment_container);
-//        if(null==fg){
-//            fg = SearchFragment.getInstance();
-//            fm.beginTransaction().add(R.id.search_fragment_container,fg).commit();
-//        }
 
         currentCategoryIndex = 0;
         mCategoryId = Constants.CATEGORY_ID;
@@ -230,18 +222,6 @@ public class MainActivity extends AppCompatActivity {
                 getSupportActionBar().setTitle(R.string.app_name);
             }
         };
-
-//        mToolbar.setVisibility(View.GONE);
-        //mActionBarDrawerToggle.setDrawerIndicatorEnabled(false);
-        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        //getSupportActionBar().setHomeButtonEnabled(true);
-        //mToolbar.setNavigationIcon(R.drawable.ic_drawer);
-//        mToolbar.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
-//        getWindow().getDecorView().setSystemUiVisibility(
-//                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//        );
-//        mActionBarDrawerToggle.setDrawerIndicatorEnabled(true);
-//        mActionBarDrawerToggle.setHomeAsUpIndicator(R.drawable.ic_drawer);
     }
 
     @Override
@@ -328,8 +308,6 @@ public class MainActivity extends AppCompatActivity {
             collectionFragmentContainer.setVisibility(View.INVISIBLE);
             mToolbar.setTitle(Constants.CATEGORY[currentCategoryIndex]);
             }
-//        FrameLayout mainFrameLayOut = (FrameLayout) findViewById(R.id.main_activity_frame_layout);
-//        mainFrameLayOut.invalidate();
     }
     @Override
     public void onConfigurationChanged(Configuration newConfig){
@@ -362,11 +340,5 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         super.onBackPressed();
-    }
-    public void hideProgressBar(){
-        mProgressBar.setVisibility(View.GONE);
-    }
-    public void showProgressBar(){
-        mProgressBar.setVisibility(View.VISIBLE);
     }
 }

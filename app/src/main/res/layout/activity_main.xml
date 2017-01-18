@@ -31,13 +31,13 @@
         android:visibility="gone">
     </FrameLayout>
 
-    <ProgressBar
-        android:id="@+id/main_activity_progress_bar"
-        android:paddingTop="?attr/actionBarSize"
-        android:indeterminate="true"
-        android:indeterminateTint="@color/colorPrimary"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+    <!--<ProgressBar-->
+        <!--android:id="@+id/main_activity_progress_bar"-->
+        <!--android:paddingTop="?attr/actionBarSize"-->
+        <!--android:indeterminate="true"-->
+        <!--android:indeterminateTint="@color/colorPrimary"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"/>-->
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/main_activity_toolbar"
