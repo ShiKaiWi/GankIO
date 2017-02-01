@@ -14,7 +14,7 @@ All the data(Articles) are from [干货](http://gank.io).
 ![Search Result](./pictures/GankIO_Search_Picture.png)
 ![Navigation Bar](./pictures/GankIO_Navigation_Picture.png)
 ![Article View](./pictures/GankIO_View_Picture.png)
-![About Page](./picture/GankIO_About_Picture.png)
+![About Page](./pictures/GankIO_About_Picture.png)
 
 ## License
 Copyright @2017 By WEI,Xikai  
