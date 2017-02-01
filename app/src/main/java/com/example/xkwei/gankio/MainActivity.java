@@ -25,6 +25,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
+import com.example.xkwei.gankio.bases.BaseFragment;
 import com.example.xkwei.gankio.contents.SearchSuggestionProvider;
 import com.example.xkwei.gankio.utils.Constants;
 import com.example.xkwei.gankio.widgets.CollectionFragment;
@@ -134,14 +135,14 @@ public class MainActivity extends AppCompatActivity {
         FragmentManager fm = getSupportFragmentManager();
         Fragment fg = fm.findFragmentById(R.id.main_fragment_container);
         if(fg==null){
-            fg = MainFragment.getInstance();
+            fg = MainFragment.getInstance(MainFragment.ANDROID);
             fm.beginTransaction().add(R.id.main_fragment_container,fg).commit();
         }
         mMainFragments[MainFragment.ANDROID] = fg;
         currentVisibleFragment = fg;
         prepareFragment();
 
-        currentCategoryIndex = 0;
+        currentCategoryIndex = MainFragment.ANDROID;
         mCategoryId = Constants.CATEGORY_ID;
         mDrawerLayout = (DrawerLayout)findViewById(R.id.main_activity_drawerLayout);
         mNavigationView = (NavigationView)findViewById(R.id.main_activity_drawerLayout_navigation_bar);
@@ -296,18 +297,21 @@ public class MainActivity extends AppCompatActivity {
             searchFragmentContainer.setVisibility(View.VISIBLE);
             mainFragmentContainer.setVisibility(View.INVISIBLE);
             collectionFragmentContainer.setVisibility(View.INVISIBLE);
+            ((BaseFragment)mSearchFragment).refresh();
             mToolbar.setTitle("\"" + currentQuery + "\"");
         }
         else if(mIsInCollectionView) {
             searchFragmentContainer.setVisibility(View.INVISIBLE);
             mainFragmentContainer.setVisibility(View.INVISIBLE);
             collectionFragmentContainer.setVisibility(View.VISIBLE);
+            ((BaseFragment)mCollectionFragment).refresh();
             mToolbar.setTitle("Collection");
         }
         else{
             searchFragmentContainer.setVisibility(View.INVISIBLE);
             mainFragmentContainer.setVisibility(View.VISIBLE);
             collectionFragmentContainer.setVisibility(View.INVISIBLE);
+            ((BaseFragment)mMainFragments[currentCategoryIndex]).refresh();
             mToolbar.setTitle(Constants.CATEGORY[currentCategoryIndex]);
             }
     }

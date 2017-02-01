@@ -6,15 +6,15 @@ Some icons belong to [icons8](https://icons8.com).
 All the data(Articles) are from [干货](http://gank.io).   
 
 ## Demo Pictures
-![Android Category](./pictures/GankIO_Android_Picture.png)
-![iOS Category](./pictures/GankIO_iOS_Picture.png)
-![Web Category](./pictures/GankIO_Web_Picture.png)
-![App Category](./pictures/GankIO_App_Picture.png)
-![Collection Category](./pictures/GankIO_Collection_Picture.png)
-![Search Result](./pictures/GankIO_Search_Picture.png)
-![Navigation Bar](./pictures/GankIO_Navigation_Picture.png)
-![Article View](./pictures/GankIO_View_Picture.png)
-![About Page](./pictures/GankIO_About_Picture.png)
+<img src="./pictures/GankIO_Android_Picture.png" width="48">
+<img src="./pictures/GankIO_iOS_Picture.png" width="48">
+<img src="./pictures/GankIO_Web_Picture.png" width="48">
+<img src="./pictures/GankIO_App_Picture.png" width="48">
+<img src="./pictures/GankIO_Collection_Picture.png" width="48">
+<img src="./pictures/GankIO_Search_Picture.png" width="48">
+<img src="./pictures/GankIO_Navigation_Picture.png" width="48">
+<img src="./pictures/GankIO_View_Picture.png" width="48">
+<img src="./pictures/GankIO_About_Picture.png" width="48">
 
 ## License
 Copyright@2017 By WEI,Xikai  

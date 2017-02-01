@@ -75,7 +75,9 @@ public abstract class BaseFragment extends Fragment {
         });
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipe_refresh_layout);
-        mSwipeRefreshLayout.setProgressViewEndTarget(true,((AppCompatActivity)getActivity()).getSupportActionBar().getHeight()+mSwipeRefreshLayout.getProgressCircleDiameter());
+//        mSwipeRefreshLayout.setProgressViewEndTarget(true,((AppCompatActivity)getActivity()).getSupportActionBar().getHeight()+mSwipeRefreshLayout.getProgressCircleDiameter());
+        mSwipeRefreshLayout.setProgressViewEndTarget(true,150+mSwipeRefreshLayout.getProgressCircleDiameter());
+
         return v;
     }
 
@@ -108,6 +110,9 @@ public abstract class BaseFragment extends Fragment {
     }
 
 
+    public void refresh(){
+        updateRecyclerView();
+    }
     protected abstract void setFragmentLayout();
     protected abstract void setRecyclerViewAdapter();
     protected abstract void updateRecyclerView();
