@@ -17,7 +17,7 @@ All the data(Articles) are from [干货](http://gank.io).
 ![About Page](./pictures/GankIO_About_Picture.png)
 
 ## License
-Copyright @2017 By WEI,Xikai  
+Copyright@2017 By WEI,Xikai  
  
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
