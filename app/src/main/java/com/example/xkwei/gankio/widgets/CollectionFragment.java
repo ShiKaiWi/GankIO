@@ -67,13 +67,6 @@ public class CollectionFragment extends BaseFragment {
     }
 
 
-    private void fetchingData(){
-        if(mIsRefreshing)return;
-        toggleToolbar(true);
-        mIsRefreshing = true;
-        updateRecyclerView();
-    }
-
     @Override
     protected void updateRecyclerView() {
         RealmResults<Article> items =
