@@ -175,8 +175,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
-
 /***
  * deprecate using the ListView as navigationBar
  */
@@ -280,6 +278,10 @@ public class MainActivity extends AppCompatActivity {
                         SearchSuggestionProvider.AUTHORITY,
                         SearchSuggestionProvider.MODE);
                 suggestions.clearHistory();
+                return true;
+            case R.id.menu_item_about:
+                Intent i = AboutActivity.newIntent(this);
+                startActivity(i);
                 return true;
             default:
         }

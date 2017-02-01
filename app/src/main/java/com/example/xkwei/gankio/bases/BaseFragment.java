@@ -1,8 +1,10 @@
 package com.example.xkwei.gankio.bases;
 
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -73,7 +75,7 @@ public abstract class BaseFragment extends Fragment {
         });
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipe_refresh_layout);
-
+        mSwipeRefreshLayout.setProgressViewEndTarget(true,((AppCompatActivity)getActivity()).getSupportActionBar().getHeight()+mSwipeRefreshLayout.getProgressCircleDiameter());
         return v;
     }
 
@@ -104,6 +106,7 @@ public abstract class BaseFragment extends Fragment {
         int deltaY = shouldBeVisible?0:-mToolbar.getHeight();
         mToolbar.animate().translationY(deltaY).setInterpolator(new AccelerateInterpolator(2));
     }
+
 
     protected abstract void setFragmentLayout();
     protected abstract void setRecyclerViewAdapter();

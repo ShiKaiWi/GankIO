@@ -1,49 +1,29 @@
 package com.example.xkwei.gankio.widgets;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.example.xkwei.gankio.ArticlePageActivity;
 import com.example.xkwei.gankio.MainActivity;
 import com.example.xkwei.gankio.R;
-import com.example.xkwei.gankio.bases.BaseFragment;
 import com.example.xkwei.gankio.bases.BaseFragmentWithUpdater;
 import com.example.xkwei.gankio.models.Article;
 import com.example.xkwei.gankio.services.GankIODataService;
 import com.example.xkwei.gankio.utils.Constants;
-import com.example.xkwei.gankio.utils.DateUtils;
 
-import io.realm.OrderedRealmCollection;
-import io.realm.Realm;
-import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.Sort;
-import java.lang.Math;
+
 /**
  * Created by xkwei on 01/01/2017.
  */
 
 public class MainFragment extends BaseFragmentWithUpdater {
-    private static final int REFRESHING= 0 ;
-    private static final int LOADING_MORE= 1;
 
     private static final String TAG = "MainFragment";
     private int mCategoryIndex;
@@ -85,14 +65,14 @@ public class MainFragment extends BaseFragmentWithUpdater {
 //    }
 
     @Override
-    protected void setIntentFilter(){
-        mIntentFilter = new IntentFilter(GankIODataService.ACTION_UPDATE_DATA);
+    protected void updateIntentFilter(){
+        mIntentFilter.addAction(GankIODataService.ACTION_UPDATE_DATA);
     }
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         mIsLoadingMore = mIsRefreshing = false;
-        setIntentFilter();
+        updateIntentFilter();
         mLocalBroadcastManager.registerReceiver(mUpdateReceiver,mIntentFilter);
         mPageNumber = 1;
     }
@@ -153,6 +133,9 @@ public class MainFragment extends BaseFragmentWithUpdater {
 
     @Override
     protected void handleReceivedBroadCast(Intent intent){
+        if(!intent.getStringExtra(GankIODataService.EXTRA).equals(Constants.CATEGORY[mCategoryIndex]))
+            return;
+        super.handleReceivedBroadCast(intent);
         Log.i(TAG,"got the broadcast");
         String action = intent.getAction();
         if(action==GankIODataService.ACTION_UPDATE_DATA) {

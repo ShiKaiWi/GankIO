@@ -69,7 +69,8 @@ public class SearchFragment extends BaseFragmentWithUpdater {
         super.onCreate(savedInstanceState);
         mQuery = getArguments().getString(QUERY);
         mIsLoadingMore = mIsRefreshing = false;
-        mLocalBroadcastManager.registerReceiver(mUpdateReceiver,new IntentFilter(GankIODataService.ACTION_QUERY));
+        updateIntentFilter();
+        mLocalBroadcastManager.registerReceiver(mUpdateReceiver,mIntentFilter);
         mPageNumber = 1;
 
 
@@ -120,6 +121,9 @@ public class SearchFragment extends BaseFragmentWithUpdater {
 
     @Override
     protected void handleReceivedBroadCast(Intent intent){
+        if(!intent.getStringExtra(GankIODataService.EXTRA).equals(mQuery))
+            return;
+        super.handleReceivedBroadCast(intent);
         Log.i(TAG,"got the broadcast");
         String action = intent.getAction();
         if(action==GankIODataService.ACTION_QUERY){
@@ -139,8 +143,8 @@ public class SearchFragment extends BaseFragmentWithUpdater {
     }
 
     @Override
-    protected void setIntentFilter(){
-        mIntentFilter = new IntentFilter(GankIODataService.ACTION_QUERY);
+    protected void updateIntentFilter(){
+        mIntentFilter.addAction(GankIODataService.ACTION_QUERY);
     }
 
     @Override

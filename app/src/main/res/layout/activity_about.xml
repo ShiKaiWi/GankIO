@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <android.support.v7.widget.Toolbar
+
+        android:id="@+id/about_activity_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:elevation="4dp"
+        android:background="@color/colorPrimaryDark"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar">
+    </android.support.v7.widget.Toolbar>
+
+    <LinearLayout
+                  android:orientation="vertical"
+                  android:padding="20dp"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent">
+
+        <TextView
+            style="@style/AboutTitle"
+            android:text="@string/title_resource_announcement"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#000000" />
+
+        <TextView
+            style="@style/AboutText"
+            android:text="@string/gankio_resource_announcement"/>
+
+        <TextView
+            style="@style/AboutText"
+            android:text="@string/icons8_resuouce_announcement"/>
+
+        <TextView
+            style="@style/AboutTitle"
+            android:text="@string/title_project_description"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#000000" />
+
+        <TextView
+            style="@style/AboutText"
+            android:text="@string/author"/>
+        <TextView
+            style="@style/AboutText"
+            android:text="@string/project_link"/>
+
+    </LinearLayout>
+
+</LinearLayout>

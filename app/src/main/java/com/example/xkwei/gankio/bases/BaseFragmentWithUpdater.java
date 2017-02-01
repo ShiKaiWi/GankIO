@@ -11,6 +11,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
+import com.example.xkwei.gankio.R;
+import com.example.xkwei.gankio.services.GankIODataService;
 
 /**
  * Created by xkwei on 15/01/2017.
@@ -25,6 +29,7 @@ public abstract class BaseFragmentWithUpdater extends BaseFragment {
     protected static final int REFRESHING=0x100;
     protected static final int LOADING_MORE=0x101;
     private static final String TAG = "BaseFragmentWithUpdater";
+    private static Toast mToast;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -33,13 +38,13 @@ public abstract class BaseFragmentWithUpdater extends BaseFragment {
         mUpdateReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Log.i(TAG,"got the broadcast");
                 handleReceivedBroadCast(intent);
                 mSwipeRefreshLayout.setRefreshing(false);
                 setIsFetching(false);
             }
         };
-        setIntentFilter();
+        mIntentFilter = new IntentFilter(GankIODataService.CONNECT_ERROR);
+        updateIntentFilter();
     }
 
     @Override
@@ -48,6 +53,7 @@ public abstract class BaseFragmentWithUpdater extends BaseFragment {
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                Log.i(TAG,"onRefresh");
                 if(isFetching()){
                     mSwipeRefreshLayout.setRefreshing(false);
                     return;
@@ -55,6 +61,8 @@ public abstract class BaseFragmentWithUpdater extends BaseFragment {
                 fetchingData(REFRESHING);
             }
         });
+        if(mToast==null)
+            mToast = Toast.makeText(getActivity(),R.string.no_connectivity,Toast.LENGTH_LONG);
         return v;
     }
 
@@ -82,6 +90,19 @@ public abstract class BaseFragmentWithUpdater extends BaseFragment {
     }
 
 
-    protected abstract void handleReceivedBroadCast(Intent intent);
-    protected abstract void setIntentFilter();
+    protected void handleReceivedBroadCast(Intent intent){
+        Log.i(TAG,"got the broadcast");
+        String result = intent.getAction();
+        if(result == GankIODataService.CONNECT_ERROR){
+            Log.i(TAG,"cannot connect to the internet");
+            if(mToast.getView()!=null){
+                if(!mToast.getView().isShown()){
+                    mToast.show();
+                }
+            }else{
+                mToast.show();
+            }
+        }
+    };
+    protected abstract void updateIntentFilter();
 }
