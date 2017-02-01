@@ -2,10 +2,22 @@
 This is an android application which provides the IT articles from [干货](http://gank.io).
 
 ## Declaration
-Some icons are from [icons8](https://icons8.com).
+Some icons belong to [icons8](https://icons8.com).
+All the data(Articles) are from [干货](http://gank.io).   
+
+## Demo Pictures
+![Android Category](./pictures/GankIO_Android_Picture.png)
+![iOS Category](./pictures/GankIO_iOS_Picture.png)
+![Web Category](./pictures/GankIO_Web_Picture.png)
+![App Category](./pictures/GankIO_App_Picture.png)
+![Collection Category](./pictures/GankIO_Collection_Picture.png)
+![Search Result](./pictures/GankIO_Search_Picture.png)
+![Navigation Bar](./pictures/GankIO_Navigation_Picture.png)
+![Article View](./pictures/GankIO_View_Picture.png)
+![About Page](./picture/GankIO_About_Picture.png)
 
 ## License
-Copyright WEI,Xikai  
+Copyright @2017 By WEI,Xikai  
  
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
