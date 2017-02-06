@@ -1,10 +1,8 @@
 package com.example.xkwei.gankio.bases;
 
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -104,7 +102,7 @@ public abstract class BaseFragment extends Fragment {
     }
 
 
-    protected void toggleToolbar(boolean shouldBeVisible){
+    public void toggleToolbar(boolean shouldBeVisible){
         int deltaY = shouldBeVisible?0:-mToolbar.getHeight();
         mToolbar.animate().translationY(deltaY).setInterpolator(new AccelerateInterpolator(2));
     }

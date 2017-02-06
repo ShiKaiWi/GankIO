@@ -1,34 +1,19 @@
 package com.example.xkwei.gankio.widgets;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
-import android.widget.TextView;
 
-import com.example.xkwei.gankio.ArticlePageActivity;
-import com.example.xkwei.gankio.MainActivity;
 import com.example.xkwei.gankio.R;
 import com.example.xkwei.gankio.bases.BaseFragmentWithUpdater;
 import com.example.xkwei.gankio.models.Article;
 import com.example.xkwei.gankio.services.GankIODataService;
-import com.example.xkwei.gankio.utils.DateUtils;
 
-import io.realm.OrderedRealmCollection;
-import io.realm.Realm;
-import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.Sort;
 

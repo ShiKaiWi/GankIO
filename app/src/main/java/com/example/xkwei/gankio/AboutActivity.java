@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.ViewGroup;
 
 /**
  * Created by xkwei on 31/01/2017.
@@ -18,6 +19,7 @@ public class AboutActivity extends AppCompatActivity {
 
     private Toolbar mToolbar;
     private GestureDetectorCompat mDetector;
+    private int mLastX,mLastY;
 
     private static final String TAG = "AboutActivity";
 
@@ -52,6 +54,7 @@ public class AboutActivity extends AppCompatActivity {
             }
         });
     }
+
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent me){

@@ -1,6 +1,5 @@
 package com.example.xkwei.gankio.widgets;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;

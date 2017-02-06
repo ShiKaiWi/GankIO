@@ -1,8 +1,6 @@
 package com.example.xkwei.gankio.utils;
 
 import android.net.Uri;
-import android.renderscript.Double2;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.Log;
 
 import com.example.xkwei.gankio.models.Article;

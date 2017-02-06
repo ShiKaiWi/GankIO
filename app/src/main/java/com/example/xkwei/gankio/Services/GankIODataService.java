@@ -41,6 +41,7 @@ public class GankIODataService extends IntentService {
 
     @Override
     public void onDestroy(){
+        Log.i(TAG,"the service is shutdown");
         super.onDestroy();
     }
 

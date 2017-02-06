@@ -23,10 +23,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
-import android.widget.ProgressBar;
 
 import com.example.xkwei.gankio.bases.BaseFragment;
 import com.example.xkwei.gankio.contents.SearchSuggestionProvider;
+import com.example.xkwei.gankio.services.GankIODataService;
 import com.example.xkwei.gankio.utils.Constants;
 import com.example.xkwei.gankio.widgets.CollectionFragment;
 import com.example.xkwei.gankio.widgets.MainFragment;
@@ -126,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
         else
             super.onNewIntent(i);
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -306,6 +307,7 @@ public class MainActivity extends AppCompatActivity {
             collectionFragmentContainer.setVisibility(View.VISIBLE);
             ((BaseFragment)mCollectionFragment).refresh();
             mToolbar.setTitle("Collection");
+            mToolbar.animate().translationY(0).setInterpolator(new AccelerateInterpolator(2));
         }
         else{
             searchFragmentContainer.setVisibility(View.INVISIBLE);
@@ -313,7 +315,8 @@ public class MainActivity extends AppCompatActivity {
             collectionFragmentContainer.setVisibility(View.INVISIBLE);
             ((BaseFragment)mMainFragments[currentCategoryIndex]).refresh();
             mToolbar.setTitle(Constants.CATEGORY[currentCategoryIndex]);
-            }
+            mToolbar.animate().translationY(0).setInterpolator(new AccelerateInterpolator(2));
+        }
     }
     @Override
     public void onConfigurationChanged(Configuration newConfig){
@@ -346,5 +349,11 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         super.onBackPressed();
+    }
+
+    @Override
+    public void onDestroy(){
+        stopService(new Intent(this,GankIODataService.class));
+        super.onDestroy();
     }
 }
